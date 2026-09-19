@@ -3,14 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GrammarPath - Past Simple Adaptive Practice</title>
+<title>GrammarPath</title>
 <style>
-:root{--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#6b7280;--line:#e5e7eb;--blue:#2563eb;--blue2:#1d4ed8;--soft:#eff6ff;--green:#15803d;--greenSoft:#f0fdf4;--red:#b91c1c;--redSoft:#fef2f2}
-*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
-.app{max-width:860px;margin:0 auto;padding:24px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 8px 28px rgba(15,23,42,.06)}
+:root{
+  --bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#6b7280;--line:#e5e7eb;
+  --blue:#2563eb;--blue2:#1d4ed8;--soft:#eff6ff;--green:#15803d;
+  --greenSoft:#f0fdf4;--red:#b91c1c;--redSoft:#fef2f2;--yellow:#a16207;--yellowSoft:#fffbeb
+}
+*{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
+.app{max-width:1120px;margin:0 auto;padding:24px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 8px 28px rgba(15,23,42,.06)}
 .hidden{display:none!important}.muted{color:var(--muted)}.small{font-size:13px}.input{width:100%;padding:13px 14px;border:1px solid #d7dce5;border-radius:12px;font:inherit}
-.btn{border:0;border-radius:11px;padding:11px 16px;font-weight:800;cursor:pointer;font:inherit}.btn-primary{background:var(--blue);color:#fff}.btn-light{background:#fff;border:1px solid var(--line);color:var(--text)}
-.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}.pill{display:inline-flex;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:800;background:var(--soft);color:var(--blue)}
+.btn{border:0;border-radius:11px;padding:11px 16px;font-weight:800;cursor:pointer;font:inherit}.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:var(--blue2)}
+.btn-light{background:#fff;border:1px solid var(--line);color:var(--text)}.btn-danger{background:#fff1f2;color:#be123c;border:1px solid #fecdd3}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pill{display:inline-flex;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:800;background:var(--soft);color:var(--blue)}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}.col-3{grid-column:span 3}.col-4{grid-column:span 4}.col-6{grid-column:span 6}.col-8{grid-column:span 8}.col-12{grid-column:span 12}
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}.role-card{border:1px solid var(--line);border-radius:16px;padding:18px}
 .progress{height:10px;background:#eaf0f7;border-radius:999px;overflow:hidden}.progress span{display:block;height:100%;background:var(--blue)}
 .levels{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.level{padding:5px 8px;border-radius:999px;font-size:12px;font-weight:800;background:#eef2f7;color:#64748b}.level.active{background:var(--soft);color:var(--blue)}
 .question{font-size:21px;line-height:1.5;margin:18px 0}.options{display:grid;gap:10px}.option{border:1px solid var(--line);border-radius:12px;padding:13px 14px;background:#fff;text-align:left;cursor:pointer;font-weight:650}
@@ -18,24 +26,51 @@
 .feedback{margin-top:16px;padding:14px;border-radius:12px;line-height:1.5}.feedback.ok{background:var(--greenSoft);color:var(--green)}.feedback.bad{background:var(--redSoft);color:var(--red)}
 .loading{text-align:center;padding:28px}.spinner{width:32px;height:32px;border:3px solid #dbeafe;border-top-color:var(--blue);border-radius:50%;margin:0 auto 10px;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}.stat{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:14px;text-align:center}.stat strong{display:block;font-size:24px}
-.row{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}.score-big{font-size:52px;font-weight:900;color:var(--blue)}
-@media(max-width:650px){.stats{grid-template-columns:1fr}.topbar{align-items:flex-start;flex-direction:column}}
+.score-big{font-size:52px;font-weight:900;color:var(--blue)}.weak-list{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.weak{background:#fff1f2;color:#be123c;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:800}
+.theory{background:var(--yellowSoft);border:1px solid #fde68a;border-radius:16px;padding:18px;margin-top:14px}.formula{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#fff;border:1px solid #fde68a;border-radius:10px;padding:10px 12px;margin:8px 0}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:11px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{font-size:12px;color:var(--muted);text-transform:uppercase}.table-wrap{overflow-x:auto}
+.metric{font-size:30px;font-weight:900;margin-top:4px}.homework-sheet{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;margin-top:16px}.homework-sheet h2,.homework-sheet h3{margin-top:0}
+.hw-section{margin-top:18px}.hw-item{margin:8px 0;line-height:1.5}.error{background:var(--redSoft);color:var(--red);padding:10px 12px;border-radius:10px;margin-top:10px}.success{background:var(--greenSoft);color:var(--green);padding:10px 12px;border-radius:10px;margin-top:10px}
+@media(max-width:800px){.col-3,.col-4,.col-6,.col-8,.col-12{grid-column:span 12}.role-grid{grid-template-columns:1fr}.topbar{align-items:flex-start;flex-direction:column}}
+@media print{
+  body *{visibility:hidden}
+  #homeworkPrintArea,#homeworkPrintArea *{visibility:visible}
+  #homeworkPrintArea{position:absolute;left:0;top:0;width:100%;border:none;box-shadow:none}
+  .no-print{display:none!important}
+}
 </style>
 </head>
 <body>
 <div class="app">
-<section id="loginView" class="card" style="margin-top:70px">
-  <span class="pill">Today's Grammar</span>
-  <h1 style="margin-top:10px">Past Simple Adaptive Practice</h1>
-  <p class="muted">Enter your name and the app will adjust the next question based on your answer.</p>
+
+<section id="homeView" class="card" style="margin-top:60px">
+  <span class="pill">GrammarPath</span>
+  <h1 style="margin:10px 0 6px">Past Simple Adaptive Practice</h1>
+  <p class="muted">One lesson, different learning paths.</p>
+  <div class="role-grid">
+    <div class="role-card">
+      <h3>Student Practice</h3>
+      <p class="muted small">Enter your name and start the adaptive practice.</p>
+      <button class="btn btn-primary" onclick="openStudent()">Start as Student</button>
+    </div>
+    <div class="role-card">
+      <h3>Teacher Portal</h3>
+      <p class="muted small">Review class results and generate personalised homework.</p>
+      <button class="btn btn-light" onclick="openTeacherLogin()">Teacher Login</button>
+    </div>
+  </div>
+</section>
+
+<section id="studentLoginView" class="card hidden" style="margin-top:60px">
+  <button class="btn btn-light" onclick="showOnly('homeView')">← Back</button>
+  <h2 style="margin-top:18px">Student Practice</h2>
   <input id="studentName" class="input" placeholder="Enter your name">
-  <button class="btn btn-primary" style="margin-top:12px" onclick="startSession()">Start practice</button>
-  <div class="small muted" style="margin-top:12px">10 questions · starts at Level 2 · correct = harder · wrong = easier.</div>
+  <button class="btn btn-primary" style="margin-top:12px" onclick="startMainSession()">Start Past Simple</button>
 </section>
 
 <section id="practiceView" class="hidden">
   <div class="topbar">
-    <div><h2 style="margin:0 0 3px">Past Simple</h2><div class="muted small" id="studentLabel"></div></div>
+    <div><h2 style="margin:0 0 3px" id="practiceTitle">Past Simple</h2><div class="muted small" id="studentLabel"></div></div>
     <span class="pill" id="questionCounter">Question 1/10</span>
   </div>
   <div class="card">
@@ -46,7 +81,7 @@
           <span class="level" id="lv1">Level 1</span><span class="level" id="lv2">Level 2</span><span class="level" id="lv3">Level 3</span><span class="level" id="lv4">Level 4</span>
         </div>
       </div>
-      <div style="min-width:180px"><div class="small muted">Session progress</div><div class="progress" style="margin-top:7px"><span id="sessionBar" style="width:0%"></span></div></div>
+      <div style="min-width:180px"><div class="small muted">Session progress</div><div class="progress" style="margin-top:7px"><span id="sessionBar"></span></div></div>
     </div>
     <div id="loadingBox" class="loading hidden"><div class="spinner"></div><strong>Generating your next question...</strong></div>
     <div id="questionBox">
@@ -58,74 +93,252 @@
   </div>
 </section>
 
-<section id="resultView" class="hidden">
-  <div class="card" style="text-align:center">
-    <span class="pill">Session Complete</span>
-    <h2 style="margin-top:12px" id="resultName"></h2>
-    <div class="score-big" id="finalScore">0/10</div>
-    <p class="muted" id="finalMessage"></p>
+<section id="mainResultView" class="hidden">
+  <div class="card">
+    <div style="text-align:center">
+      <span class="pill">Main Practice Complete</span>
+      <h2 style="margin-top:12px" id="resultName"></h2>
+      <div class="score-big" id="finalScore">0/10</div>
+      <p class="muted">The app identified what you should review next.</p>
+    </div>
     <div class="stats">
       <div class="stat"><span class="small muted">Correct</span><strong id="statCorrect">0</strong></div>
       <div class="stat"><span class="small muted">Final level</span><strong id="statLevel">2</strong></div>
       <div class="stat"><span class="small muted">Best streak</span><strong id="statStreak">0</strong></div>
     </div>
-    <div style="text-align:left"><h3>Your learning path today</h3><div id="sessionHistory"></div></div>
-    <div style="margin-top:18px"><button class="btn btn-primary" onclick="restartPractice()">Practice again</button> <button class="btn btn-light" onclick="changeStudent()">Change name</button></div>
+    <h3>Areas to improve</h3>
+    <div id="weaknessList" class="weak-list"></div>
+    <div id="theoryBox"></div>
+    <div class="toolbar" style="margin-top:18px">
+      <button class="btn btn-primary" onclick="startPersonalPractice()">Start my 5-question personal practice</button>
+      <button class="btn btn-light" onclick="showOnly('homeView')">Finish</button>
+    </div>
+    <div id="saveStatus" class="small muted" style="margin-top:12px"></div>
+  </div>
+</section>
+
+<section id="personalResultView" class="hidden">
+  <div class="card" style="text-align:center">
+    <span class="pill">Personal Practice Complete</span>
+    <h2 style="margin-top:12px">Targeted practice finished</h2>
+    <div class="score-big" id="personalScore">0/5</div>
+    <p class="muted" id="personalMessage"></p>
+    <div id="personalSaveStatus" class="small muted"></div>
+    <button class="btn btn-primary" style="margin-top:16px" onclick="showOnly('homeView')">Finish</button>
+  </div>
+</section>
+
+<section id="teacherLoginView" class="card hidden" style="margin-top:60px">
+  <button class="btn btn-light" onclick="showOnly('homeView')">← Back</button>
+  <h2 style="margin-top:18px">Teacher Login</h2>
+  <p class="muted">Enter the teacher PIN. The PIN is checked on Vercel and is not stored in this HTML.</p>
+  <input id="teacherPin" type="password" class="input" placeholder="Teacher PIN">
+  <button class="btn btn-primary" style="margin-top:12px" onclick="teacherLogin()">Open Dashboard</button>
+  <div id="teacherLoginError" class="error hidden"></div>
+</section>
+
+<section id="teacherView" class="hidden">
+  <div class="topbar">
+    <div><h1 style="margin:0">Teacher Dashboard</h1><div class="muted small">Past Simple class overview</div></div>
+    <div class="toolbar"><span class="pill">Teacher</span><button class="btn btn-light" onclick="teacherLogout()">Log out</button></div>
+  </div>
+
+  <div class="grid">
+    <div class="card col-3"><div class="small muted">Students recorded</div><div class="metric" id="metricStudents">0</div></div>
+    <div class="card col-3"><div class="small muted">Total sessions</div><div class="metric" id="metricSessions">0</div></div>
+    <div class="card col-3"><div class="small muted">Main practices</div><div class="metric" id="metricMain">0</div></div>
+    <div class="card col-3"><div class="small muted">Personal practices</div><div class="metric" id="metricPersonal">0</div></div>
+
+    <div class="card col-12">
+      <div class="topbar">
+        <div><h2 style="margin:0">Class Summary</h2><div class="muted small">Latest data from Google Sheet</div></div>
+        <button class="btn btn-light" onclick="loadTeacherData()">Refresh</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Student</th><th>Main Score</th><th>Level</th><th>Weak Area</th><th>Personal Practice</th><th>Last Active</th><th>Homework</th></tr></thead>
+          <tbody id="summaryBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card col-12 hidden" id="studentHistoryCard">
+      <h2 id="historyTitle">Student History</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Time</th><th>Session</th><th>Score</th><th>Level</th><th>Weak Area</th><th>Target</th></tr></thead>
+          <tbody id="historyBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card col-12 hidden" id="homeworkCard">
+      <div class="topbar no-print">
+        <div><h2 style="margin:0">Personalised Homework</h2><div class="muted small">Generated from the student's latest performance</div></div>
+        <div class="toolbar">
+          <button class="btn btn-light" onclick="copyHomework()">Copy Homework</button>
+          <button class="btn btn-primary" onclick="window.print()">Print / Save as PDF</button>
+        </div>
+      </div>
+      <div id="homeworkLoading" class="loading hidden no-print"><div class="spinner"></div><strong>Generating homework...</strong></div>
+      <div id="homeworkPrintArea" class="homework-sheet"></div>
+    </div>
   </div>
 </section>
 </div>
 
 <script>
-const TOTAL=10;
-let student="",currentIndex=0,currentLevel=2,score=0,currentQuestion=null,answered=false,correctStreak=0,bestStreak=0,history=[],lastConcept="general",lastWasWrong=false;
-const fallback={
-1:[{q:"Yesterday, I ___ football.",options:["play","played","plays","playing"],answer:1,explain:"'Yesterday' shows a finished past action, so use 'played'.",concept:"regular verbs"}],
-2:[{q:"___ you watch TV yesterday?",options:["Do","Does","Did","Are"],answer:2,explain:"Past Simple questions use 'Did + subject + base verb'.",concept:"did questions"}],
-3:[{q:"Choose the correct sentence.",options:["She didn't went to school.","She didn't go to school.","She doesn't went to school.","She not go to school."],answer:1,explain:"Use 'didn't + base verb': didn't go.",concept:"negative form"}],
-4:[{q:"Which sentence is grammatically correct?",options:["Did she went home after class?","Did she go home after class?","Does she went home after class?","She did went home after class?"],answer:1,explain:"Use 'Did + subject + base verb'.",concept:"question form"}]
+const THEORY={
+  affirmative:{title:"Past Simple — affirmative",formula:"S + V2/ed + ...",note:"Use the Past Simple for finished actions in the past.",example:"She visited her grandmother yesterday."},
+  negative:{title:"Past Simple — negative",formula:"S + did not (didn't) + V1 + ...",note:"After didn't, use the base form.",example:"She didn't go to school yesterday."},
+  questions:{title:"Past Simple — questions",formula:"Did + S + V1 + ... ?",note:"After Did, use the base form.",example:"Did you watch the film last night?"},
+  be:{title:"Past Simple of BE",formula:"I/He/She/It + was | You/We/They + were",note:"Use wasn't / weren't for negatives.",example:"They were tired. Was she at home?"},
+  irregular_verbs:{title:"Irregular verbs",formula:"V1 → special V2 form",note:"Irregular verbs do not simply add -ed.",example:"go → went | buy → bought | see → saw"},
+  regular_verbs:{title:"Regular verbs",formula:"V1 + -ed → V2",note:"Most regular verbs form the past with -ed.",example:"play → played | study → studied"},
+  time_markers:{title:"Past time markers",formula:"yesterday | last ... | ... ago | in + past year",note:"Past time expressions often signal the Past Simple.",example:"last night, two days ago"},
+  error_correction:{title:"Past Simple editing check",formula:"Check: time → auxiliary → verb form",note:"Check did/didn't and the verb form.",example:"She didn't went → She didn't go"},
+  mixed_advanced:{title:"Past Simple challenge",formula:"Meaning + time marker + correct past form",note:"Apply the tense accurately in longer contexts.",example:"After the lesson ended, we walked home."}
 };
-function showOnly(id){["loginView","practiceView","resultView"].forEach(x=>document.getElementById(x).classList.toggle("hidden",x!==id))}
-function startSession(){
- const name=document.getElementById("studentName").value.trim(); if(!name){alert("Please enter your name.");return}
- student=name;currentIndex=0;currentLevel=2;score=0;correctStreak=0;bestStreak=0;history=[];lastConcept="general";lastWasWrong=false;
- document.getElementById("studentLabel").textContent="Student: "+student;showOnly("practiceView");generateQuestion()
+
+let student="",mode="main",totalQuestions=10,currentIndex=0,currentLevel=2,score=0,currentQuestion=null,answered=false;
+let correctStreak=0,bestStreak=0,history=[],lastConcept="general",lastWasWrong=false,mainWeaknesses=[],personalTarget="mixed_advanced";
+let teacherPinMemory="",teacherDataCache=null,currentHomeworkText="";
+
+const fallback={
+  1:{q:"Yesterday, I ___ football.",options:["play","played","plays","playing"],answer:1,explain:"Use the Past Simple after 'yesterday'.",concept:"regular_verbs"},
+  2:{q:"___ you watch TV yesterday?",options:["Do","Does","Did","Are"],answer:2,explain:"Past Simple questions use Did + subject + base verb.",concept:"questions"},
+  3:{q:"Choose the correct sentence.",options:["She didn't went to school.","She didn't go to school.","She doesn't went to school.","She not go to school."],answer:1,explain:"Use didn't + base verb.",concept:"negative"},
+  4:{q:"Which sentence is grammatically correct?",options:["Did she went home?","Did she go home?","Does she went home?","She did went home?"],answer:1,explain:"Use Did + subject + base verb.",concept:"questions"}
+};
+
+function showOnly(id){
+  ["homeView","studentLoginView","practiceView","mainResultView","personalResultView","teacherLoginView","teacherView"].forEach(x=>document.getElementById(x).classList.toggle("hidden",x!==id));
+}
+function openStudent(){showOnly("studentLoginView")}
+function openTeacherLogin(){document.getElementById("teacherPin").value="";document.getElementById("teacherLoginError").classList.add("hidden");showOnly("teacherLoginView")}
+function conceptLabel(c){const m={affirmative:"Affirmative form",negative:"Negative form",questions:"Questions",be:"Past Simple of BE",irregular_verbs:"Irregular verbs",regular_verbs:"Regular verbs",time_markers:"Past time markers",error_correction:"Error correction",mixed_advanced:"Advanced application"};return m[c]||c}
+
+function resetSession(newMode){
+  mode=newMode;totalQuestions=newMode==="main"?10:5;currentIndex=0;currentLevel=newMode==="main"?2:Math.max(1,Math.min(3,currentLevel));
+  score=0;correctStreak=0;bestStreak=0;history=[];lastConcept=newMode==="personal"?personalTarget:"general";lastWasWrong=newMode==="personal";
+}
+function startMainSession(){
+  const n=document.getElementById("studentName").value.trim();if(!n){alert("Please enter your name.");return}
+  student=n;resetSession("main");document.getElementById("practiceTitle").textContent="Past Simple";document.getElementById("studentLabel").textContent="Student: "+student;showOnly("practiceView");generateQuestion()
+}
+function startPersonalPractice(){
+  resetSession("personal");document.getElementById("practiceTitle").textContent="Personal Practice — "+conceptLabel(personalTarget);document.getElementById("studentLabel").textContent="Student: "+student;showOnly("practiceView");generateQuestion()
 }
 function updateLevelUI(){
- [1,2,3,4].forEach(l=>document.getElementById("lv"+l).classList.toggle("active",l===currentLevel));
- document.getElementById("questionCounter").textContent=`Question ${currentIndex+1}/${TOTAL}`;
- document.getElementById("sessionBar").style.width=(currentIndex/TOTAL*100)+"%";
+  [1,2,3,4].forEach(l=>document.getElementById("lv"+l).classList.toggle("active",l===currentLevel));
+  document.getElementById("questionCounter").textContent=`Question ${currentIndex+1}/${totalQuestions}`;
+  document.getElementById("sessionBar").style.width=(currentIndex/totalQuestions*100)+"%";
 }
 async function generateQuestion(){
- answered=false;updateLevelUI();document.getElementById("loadingBox").classList.remove("hidden");document.getElementById("questionBox").classList.add("hidden");document.getElementById("feedbackBox").innerHTML="";document.getElementById("nextBtn").classList.add("hidden");
- try{
-  const r=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({student,topic:"past",level:currentLevel,previousConcept:lastConcept,previousWrong:lastWasWrong})});
-  if(!r.ok) throw new Error(await r.text());
-  const data=await r.json(); if(!data.question) throw new Error("Invalid API response"); currentQuestion=data.question;
- }catch(e){console.error(e);currentQuestion=fallback[currentLevel][0]}
- document.getElementById("loadingBox").classList.add("hidden");document.getElementById("questionBox").classList.remove("hidden");renderQuestion()
+  answered=false;updateLevelUI();document.getElementById("loadingBox").classList.remove("hidden");document.getElementById("questionBox").classList.add("hidden");document.getElementById("feedbackBox").innerHTML="";document.getElementById("nextBtn").classList.add("hidden");
+  try{
+    const r=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({level:currentLevel,previousConcept:lastConcept,previousWrong:lastWasWrong,targetConcept:mode==="personal"?personalTarget:null})});
+    if(!r.ok)throw new Error(await r.text());const d=await r.json();if(!d.question)throw new Error("Invalid");currentQuestion=d.question;
+  }catch(e){console.error(e);currentQuestion=fallback[currentLevel]}
+  document.getElementById("loadingBox").classList.add("hidden");document.getElementById("questionBox").classList.remove("hidden");renderQuestion()
 }
 function renderQuestion(){
- document.getElementById("questionText").textContent=currentQuestion.q;
- document.getElementById("optionsBox").innerHTML=currentQuestion.options.map((o,i)=>`<button type="button" class="option" onclick="answerQuestion(${i},this)">${o}</button>`).join("")
+  document.getElementById("questionText").textContent=currentQuestion.q;
+  document.getElementById("optionsBox").innerHTML=currentQuestion.options.map((o,i)=>`<button type="button" class="option" onclick="answerQuestion(${i},this)">${o}</button>`).join("")
 }
 function answerQuestion(selected,btn){
- if(answered)return;answered=true;const correct=selected===currentQuestion.answer;const buttons=[...document.querySelectorAll(".option")];
- buttons.forEach((b,i)=>{b.disabled=true;if(i===currentQuestion.answer)b.classList.add("correct")});if(!correct)btn.classList.add("wrong");
- if(correct){score++;correctStreak++;bestStreak=Math.max(bestStreak,correctStreak)}else{correctStreak=0}
- history.push({number:currentIndex+1,level:currentLevel,correct,concept:currentQuestion.concept||"Past Simple"});
- lastConcept=currentQuestion.concept||"general";lastWasWrong=!correct;
- document.getElementById("feedbackBox").innerHTML=`<div class="feedback ${correct?"ok":"bad"}"><strong>${correct?"✓ Correct":"✗ Not quite"}</strong><br>${currentQuestion.explain}</div>`;
- currentLevel=correct?Math.min(4,currentLevel+1):Math.max(1,currentLevel-1);
- document.getElementById("nextBtn").textContent=currentIndex===TOTAL-1?"See results":"Next question";document.getElementById("nextBtn").classList.remove("hidden")
+  if(answered)return;answered=true;const correct=selected===currentQuestion.answer;const buttons=[...document.querySelectorAll(".option")];
+  buttons.forEach((b,i)=>{b.disabled=true;if(i===currentQuestion.answer)b.classList.add("correct")});if(!correct)btn.classList.add("wrong");
+  if(correct){score++;correctStreak++;bestStreak=Math.max(bestStreak,correctStreak)}else correctStreak=0;
+  history.push({number:currentIndex+1,level:currentLevel,correct,concept:currentQuestion.concept||"error_correction"});
+  lastConcept=currentQuestion.concept||"error_correction";lastWasWrong=!correct;
+  document.getElementById("feedbackBox").innerHTML=`<div class="feedback ${correct?"ok":"bad"}"><strong>${correct?"✓ Correct":"✗ Not quite"}</strong><br>${currentQuestion.explain}</div>`;
+  currentLevel=correct?Math.min(4,currentLevel+1):Math.max(1,currentLevel-1);
+  document.getElementById("nextBtn").textContent=currentIndex===totalQuestions-1?"See results":"Next question";document.getElementById("nextBtn").classList.remove("hidden")
 }
-function nextQuestion(){currentIndex++;if(currentIndex>=TOTAL)finishSession();else generateQuestion()}
-function finishSession(){
- document.getElementById("finalScore").textContent=`${score}/${TOTAL}`;document.getElementById("resultName").textContent=`Well done, ${student}!`;document.getElementById("statCorrect").textContent=score;document.getElementById("statLevel").textContent=currentLevel;document.getElementById("statStreak").textContent=bestStreak;
- document.getElementById("finalMessage").textContent=score>=9?"Excellent control of the Past Simple.":score>=7?"Good progress. Your questions became more challenging as you succeeded.":"Keep practising. The app adjusted the difficulty to give you more support.";
- document.getElementById("sessionHistory").innerHTML=history.map(h=>`<div class="row"><span>Q${h.number} · Level ${h.level} · ${h.concept}</span><strong style="color:${h.correct?"#15803d":"#b91c1c"}">${h.correct?"Correct":"Review"}</strong></div>`).join("");showOnly("resultView")
+function nextQuestion(){currentIndex++;if(currentIndex>=totalQuestions){mode==="main"?finishMain():finishPersonal()}else generateQuestion()}
+function getWeaknesses(){
+  const c={};history.filter(h=>!h.correct).forEach(h=>c[h.concept]=(c[h.concept]||0)+1);
+  return Object.entries(c).sort((a,b)=>b[1]-a[1]).map(([concept,count])=>({concept,count}))
 }
-function restartPractice(){document.getElementById("studentName").value=student;startSession()}
-function changeStudent(){document.getElementById("studentName").value="";showOnly("loginView")}
+function renderTheory(){
+  const targets=mainWeaknesses.length?mainWeaknesses.map(w=>w.concept):["mixed_advanced"];
+  document.getElementById("theoryBox").innerHTML=targets.map(c=>{const t=THEORY[c]||THEORY.error_correction;return `<div class="theory"><h3>${t.title}</h3><div class="formula">${t.formula}</div><div>${t.note}</div><div class="small muted" style="margin-top:8px"><strong>Example:</strong> ${t.example}</div></div>`}).join("")
+}
+async function saveResult(payload,statusId){
+  const el=document.getElementById(statusId);el.textContent="Saving result for your teacher...";
+  try{
+    const r=await fetch("/api/save-result",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+    if(!r.ok)throw new Error(await r.text());el.textContent="Result saved for your teacher.";
+  }catch(e){console.error(e);el.textContent="Result could not be saved. Please tell your teacher."}
+}
+function finishMain(){
+  mainWeaknesses=getWeaknesses().slice(0,2);personalTarget=mainWeaknesses.length?mainWeaknesses[0].concept:"mixed_advanced";
+  document.getElementById("resultName").textContent=`Great work, ${student}!`;document.getElementById("finalScore").textContent=`${score}/10`;document.getElementById("statCorrect").textContent=score;document.getElementById("statLevel").textContent=currentLevel;document.getElementById("statStreak").textContent=bestStreak;
+  document.getElementById("weaknessList").innerHTML=mainWeaknesses.length?mainWeaknesses.map(w=>`<span class="weak">${conceptLabel(w.concept)} · ${w.count} error${w.count>1?"s":""}</span>`).join(""):`<span class="pill">No clear weakness — challenge practice unlocked</span>`;
+  renderTheory();showOnly("mainResultView");
+  saveResult({student,topic:"Past Simple",sessionType:"Main Practice",score,total:10,finalLevel:currentLevel,weakAreas:mainWeaknesses.map(w=>conceptLabel(w.concept)),targetConcept:conceptLabel(personalTarget),path:history.map(h=>`Q${h.number}:L${h.level}:${h.concept}:${h.correct?"OK":"WRONG"}`).join(" | ")},"saveStatus")
+}
+function finishPersonal(){
+  document.getElementById("personalScore").textContent=`${score}/5`;document.getElementById("personalMessage").textContent=score>=4?`Strong improvement in ${conceptLabel(personalTarget)}.`:`Keep reviewing ${conceptLabel(personalTarget)}.`;
+  showOnly("personalResultView");
+  saveResult({student,topic:"Past Simple",sessionType:"Personal Practice",score,total:5,finalLevel:currentLevel,weakAreas:mainWeaknesses.map(w=>conceptLabel(w.concept)),targetConcept:conceptLabel(personalTarget),path:history.map(h=>`Q${h.number}:L${h.level}:${h.concept}:${h.correct?"OK":"WRONG"}`).join(" | ")},"personalSaveStatus")
+}
+
+async function teacherLogin(){
+  const pin=document.getElementById("teacherPin").value;const err=document.getElementById("teacherLoginError");
+  err.classList.add("hidden");
+  try{
+    const r=await fetch("/api/teacher-auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({pin})});
+    if(!r.ok)throw new Error("Incorrect PIN");
+    teacherPinMemory=pin;showOnly("teacherView");await loadTeacherData();
+  }catch(e){err.textContent="Incorrect teacher PIN.";err.classList.remove("hidden")}
+}
+function teacherLogout(){teacherPinMemory="";teacherDataCache=null;showOnly("homeView")}
+async function loadTeacherData(){
+  try{
+    const r=await fetch("/api/teacher-data",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({pin:teacherPinMemory})});
+    if(!r.ok)throw new Error(await r.text());teacherDataCache=await r.json();renderTeacherData();
+  }catch(e){alert("Could not load teacher data. Check Vercel and Google Apps Script settings.")}
+}
+function renderTeacherData(){
+  const s=teacherDataCache.summary||[],r=teacherDataCache.results||[];
+  document.getElementById("metricStudents").textContent=s.length;document.getElementById("metricSessions").textContent=r.length;document.getElementById("metricMain").textContent=r.filter(x=>x.sessionType==="Main Practice").length;document.getElementById("metricPersonal").textContent=r.filter(x=>x.sessionType==="Personal Practice").length;
+  document.getElementById("summaryBody").innerHTML=s.length?s.map(x=>`<tr>
+    <td><button class="btn btn-light" onclick='showStudentHistory(${JSON.stringify(x.student)})'>${x.student}</button></td>
+    <td>${x.latestMainScore||"—"}</td><td>${x.finalLevel||"—"}</td><td>${x.weakAreas||"—"}</td><td>${x.latestPersonalPractice||"—"}</td><td>${formatDate(x.lastActive)}</td>
+    <td><button class="btn btn-primary" onclick='generateHomework(${JSON.stringify(x.student)})'>Generate</button></td>
+  </tr>`).join(""):`<tr><td colspan="7" class="muted">No student results yet.</td></tr>`
+}
+function formatDate(v){if(!v)return"—";const d=new Date(v);return isNaN(d)?v:d.toLocaleString()}
+function showStudentHistory(name){
+  const rows=(teacherDataCache.results||[]).filter(x=>String(x.student).toLowerCase()===String(name).toLowerCase()).reverse();
+  document.getElementById("historyTitle").textContent=name+" — Learning History";document.getElementById("historyBody").innerHTML=rows.map(x=>`<tr><td>${formatDate(x.timestamp)}</td><td>${x.sessionType}</td><td>${x.score}/${x.total}</td><td>${x.finalLevel}</td><td>${x.weakAreas||"—"}</td><td>${x.targetConcept||"—"}</td></tr>`).join("");
+  document.getElementById("studentHistoryCard").classList.remove("hidden");document.getElementById("studentHistoryCard").scrollIntoView({behavior:"smooth"})
+}
+async function generateHomework(name){
+  const summary=(teacherDataCache.summary||[]).find(x=>String(x.student).toLowerCase()===String(name).toLowerCase());
+  if(!summary)return;
+  document.getElementById("homeworkCard").classList.remove("hidden");document.getElementById("homeworkLoading").classList.remove("hidden");document.getElementById("homeworkPrintArea").innerHTML="";
+  document.getElementById("homeworkCard").scrollIntoView({behavior:"smooth"});
+  try{
+    const r=await fetch("/api/homework",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({pin:teacherPinMemory,student:name,topic:"Past Simple",latestMainScore:summary.latestMainScore,finalLevel:summary.finalLevel,weakAreas:summary.weakAreas,latestPersonalPractice:summary.latestPersonalPractice})});
+    if(!r.ok)throw new Error(await r.text());const hw=await r.json();renderHomework(hw.homework);
+  }catch(e){document.getElementById("homeworkPrintArea").innerHTML="<div class='error'>Could not generate homework.</div>"}
+  document.getElementById("homeworkLoading").classList.add("hidden")
+}
+function renderHomework(hw){
+  currentHomeworkText=`${hw.title}\nStudent: ${hw.student}\nFocus: ${hw.focus}\nDifficulty: ${hw.difficulty}\n\n`+
+    hw.sections.map(s=>`${s.title}\n${s.instructions}\n${s.items.map((x,i)=>`${i+1}. ${x}`).join("\n")}`).join("\n\n")+
+    `\n\nTeacher Answer Key\n${hw.answerKey.map((x,i)=>`${i+1}. ${x}`).join("\n")}`;
+  document.getElementById("homeworkPrintArea").innerHTML=`
+    <h2>${hw.title}</h2><div><strong>Student:</strong> ${hw.student}</div><div><strong>Focus:</strong> ${hw.focus}</div><div><strong>Difficulty:</strong> ${hw.difficulty}</div>
+    ${hw.sections.map(s=>`<div class="hw-section"><h3>${s.title}</h3><div class="muted">${s.instructions}</div>${s.items.map((x,i)=>`<div class="hw-item">${i+1}. ${x}</div>`).join("")}</div>`).join("")}
+    <div class="hw-section"><h3>Teacher Answer Key</h3>${hw.answerKey.map((x,i)=>`<div class="hw-item">${i+1}. ${x}</div>`).join("")}</div>`;
+}
+async function copyHomework(){
+  try{await navigator.clipboard.writeText(currentHomeworkText);alert("Homework copied.")}catch(e){alert("Copy failed. You can select and copy the homework manually.")}
+}
 </script>
 </body>
 </html>
