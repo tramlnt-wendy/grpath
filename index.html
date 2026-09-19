@@ -224,6 +224,24 @@
       text-align:center;
       padding:24px;
     }
+    
+    .loading-box{
+      padding:18px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:white;
+      text-align:center;
+      margin-top:18px;
+    }
+    .spinner{
+      width:30px;height:30px;
+      border:3px solid #dbeafe;
+      border-top-color:var(--primary);
+      border-radius:50%;
+      margin:0 auto 10px;
+      animation:spin .8s linear infinite;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
     .footer-note{
       margin-top:22px;
       color:var(--muted);
@@ -378,6 +396,11 @@
       </div>
     </div>
 
+    <div id="loadingBox" class="loading-box hidden">
+      <div class="spinner"></div>
+      <strong>Generating your personalised practice...</strong>
+      <div class="muted small" style="margin-top:6px">The app is creating 10 new questions for this learning profile.</div>
+    </div>
     <form id="quizForm" style="margin-top:18px"></form>
 
     <div class="card">
@@ -446,7 +469,7 @@
   </section>
 
   <div class="footer-note">
-    Demo only — no API, no server, no online database yet.
+    Version 2 — AI-generated practice via Vercel backend. Progress is still stored locally in this browser.
   </div>
 </div>
 
@@ -590,11 +613,46 @@ function shuffle(arr){
   return [...arr].sort(()=>Math.random() - 0.5);
 }
 
-function startQuiz(topic){
+async function startQuiz(topic){
   currentTopic = topic;
-  currentQuestions = shuffle(questionBank[topic]).slice(0,10);
   document.getElementById("quizTitle").textContent = topicName(topic) + " — 10 Questions";
   document.getElementById("quizStudent").textContent = "Student: " + currentStudent;
+  document.getElementById("quizForm").innerHTML = "";
+  document.getElementById("submitQuizBtn").disabled = true;
+  document.getElementById("loadingBox").classList.remove("hidden");
+  showOnly("quizView");
+
+  const mastery = state.students[currentStudent].mastery[topic];
+
+  try{
+    const response = await fetch("/api/generate", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        student: currentStudent,
+        topic,
+        mastery
+      })
+    });
+
+    if(!response.ok){
+      const errorText = await response.text();
+      throw new Error(errorText || "API request failed");
+    }
+
+    const data = await response.json();
+    if(!Array.isArray(data.questions) || data.questions.length < 10){
+      throw new Error("The API did not return 10 valid questions.");
+    }
+
+    currentQuestions = data.questions.slice(0,10);
+  }catch(err){
+    console.error("AI generation failed. Falling back to local bank:", err);
+    alert("AI generation is temporarily unavailable. The app will use the built-in question bank for this practice.");
+    currentQuestions = shuffle(questionBank[topic]).slice(0,10);
+  }
+
+  document.getElementById("loadingBox").classList.add("hidden");
   const form = document.getElementById("quizForm");
   form.innerHTML = currentQuestions.map((item, idx)=>`
     <div class="question" id="q${idx}">
@@ -611,7 +669,6 @@ function startQuiz(topic){
     </div>
   `).join("");
   document.getElementById("submitQuizBtn").disabled = false;
-  showOnly("quizView");
 }
 
 function submitQuiz(e){
