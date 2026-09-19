@@ -1,451 +1,340 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GrammarPath Demo</title>
-  <style>
-    :root{
-      --bg:#f5f7fb;
-      --card:#ffffff;
-      --text:#1f2937;
-      --muted:#6b7280;
-      --line:#e5e7eb;
-      --primary:#2563eb;
-      --primary-soft:#eff6ff;
-      --ok:#15803d;
-      --bad:#b91c1c;
-      --warn:#a16207;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background:var(--bg);
-      color:var(--text);
-    }
-    .app{
-      max-width:1100px;
-      margin:0 auto;
-      padding:24px;
-    }
-    .topbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:16px;
-      margin-bottom:24px;
-    }
-    .brand h1{
-      margin:0;
-      font-size:28px;
-    }
-    .brand p{
-      margin:4px 0 0;
-      color:var(--muted);
-      font-size:14px;
-    }
-    .tabs{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-    }
-    button{
-      border:0;
-      border-radius:10px;
-      padding:10px 14px;
-      font-weight:600;
-      cursor:pointer;
-      font-size:14px;
-    }
-    .btn-primary{background:var(--primary);color:white}
-    .btn-light{background:white;border:1px solid var(--line);color:var(--text)}
-    .btn-danger{background:#fff1f2;color:#be123c;border:1px solid #fecdd3}
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(12,1fr);
-      gap:18px;
-    }
-    .card{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:16px;
-      padding:18px;
-      box-shadow:0 2px 8px rgba(15,23,42,.04);
-    }
-    .col-4{grid-column:span 4}
-    .col-6{grid-column:span 6}
-    .col-8{grid-column:span 8}
-    .col-12{grid-column:span 12}
-    @media(max-width:800px){
-      .col-4,.col-6,.col-8,.col-12{grid-column:span 12}
-      .topbar{align-items:flex-start;flex-direction:column}
-    }
-    .student-card{
-      border:2px solid transparent;
-      transition:.15s;
-    }
-    .student-card:hover{border-color:#bfdbfe;transform:translateY(-1px)}
-    .student-name{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:8px;
-    }
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      border-radius:999px;
-      padding:5px 9px;
-      font-size:12px;
-      font-weight:700;
-      background:var(--primary-soft);
-      color:var(--primary);
-    }
-    .muted{color:var(--muted)}
-    .small{font-size:13px}
-    .metric{
-      font-size:28px;
-      font-weight:800;
-      margin-top:4px;
-    }
-    .topic-list{
-      display:grid;
-      gap:12px;
-      margin-top:14px;
-    }
-    .topic{
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:14px;
-    }
-    .topic-row{
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      align-items:center;
-    }
-    .progress{
-      height:9px;
-      background:#eef2f7;
-      border-radius:999px;
-      overflow:hidden;
-      margin-top:10px;
-    }
-    .progress > span{
-      display:block;
-      height:100%;
-      background:var(--primary);
-      border-radius:999px;
-    }
-    .question{
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:16px;
-      margin-bottom:14px;
-    }
-    .question h3{
-      margin:0 0 12px;
-      font-size:16px;
-      line-height:1.45;
-    }
-    .options{
-      display:grid;
-      gap:8px;
-    }
-    label.option{
-      display:flex;
-      gap:10px;
-      align-items:flex-start;
-      padding:10px 12px;
-      border:1px solid var(--line);
-      border-radius:10px;
-      cursor:pointer;
-      background:white;
-    }
-    label.option:hover{background:#f8fafc}
-    .feedback{
-      margin-top:10px;
-      padding:10px 12px;
-      border-radius:10px;
-      font-size:14px;
-      line-height:1.45;
-    }
-    .feedback.ok{background:#f0fdf4;color:var(--ok)}
-    .feedback.bad{background:#fef2f2;color:var(--bad)}
-    .notice{
-      padding:12px 14px;
-      border-radius:12px;
-      background:#fffbeb;
-      color:#92400e;
-      border:1px solid #fde68a;
-      margin-bottom:16px;
-    }
-    table{
-      width:100%;
-      border-collapse:collapse;
-      font-size:14px;
-    }
-    th,td{
-      text-align:left;
-      padding:11px 10px;
-      border-bottom:1px solid var(--line);
-      vertical-align:top;
-    }
-    th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
-    .hidden{display:none!important}
-    .section-title{
-      margin:0 0 8px;
-      font-size:20px;
-    }
-    .actions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:14px;
-    }
-    .score-box{
-      text-align:center;
-      padding:20px;
-      background:var(--primary-soft);
-      border-radius:16px;
-      margin-bottom:16px;
-    }
-    .score-box .big{
-      font-size:42px;
-      font-weight:900;
-      color:var(--primary);
-    }
-    .tag-good{color:var(--ok);font-weight:700}
-    .tag-mid{color:var(--warn);font-weight:700}
-    .tag-low{color:var(--bad);font-weight:700}
-    .empty{
-      color:var(--muted);
-      text-align:center;
-      padding:24px;
-    }
-    
-    .loading-box{
-      padding:18px;
-      border:1px solid var(--line);
-      border-radius:14px;
-      background:white;
-      text-align:center;
-      margin-top:18px;
-    }
-    .spinner{
-      width:30px;height:30px;
-      border:3px solid #dbeafe;
-      border-top-color:var(--primary);
-      border-radius:50%;
-      margin:0 auto 10px;
-      animation:spin .8s linear infinite;
-    }
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .footer-note{
-      margin-top:22px;
-      color:var(--muted);
-      font-size:12px;
-      text-align:center;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GrammarPath</title>
+<style>
+:root{
+  --bg:#f4f7fb;
+  --card:#fff;
+  --text:#172033;
+  --muted:#6b7280;
+  --line:#e5e7eb;
+  --blue:#2563eb;
+  --blue2:#1d4ed8;
+  --blueSoft:#eff6ff;
+  --green:#15803d;
+  --greenSoft:#f0fdf4;
+  --yellow:#a16207;
+  --yellowSoft:#fffbeb;
+  --red:#b91c1c;
+  --redSoft:#fef2f2;
+  --shadow:0 8px 28px rgba(15,23,42,.06);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+button,input{font:inherit}
+button{cursor:pointer}
+.shell{max-width:1180px;margin:0 auto;padding:24px}
+.topbar{
+  display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:22px
+}
+.brand h1{margin:0;font-size:28px}
+.brand p{margin:4px 0 0;color:var(--muted);font-size:14px}
+.role-badge{
+  background:var(--blueSoft);color:var(--blue);border-radius:999px;
+  padding:8px 12px;font-size:13px;font-weight:800
+}
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:18px;
+  box-shadow:var(--shadow);padding:20px
+}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
+.col-3{grid-column:span 3}.col-4{grid-column:span 4}.col-5{grid-column:span 5}
+.col-6{grid-column:span 6}.col-7{grid-column:span 7}.col-8{grid-column:span 8}.col-12{grid-column:span 12}
+@media(max-width:850px){
+  .col-3,.col-4,.col-5,.col-6,.col-7,.col-8,.col-12{grid-column:span 12}
+  .topbar{align-items:flex-start;flex-direction:column}
+}
+.hidden{display:none!important}
+.btn{
+  border:0;border-radius:11px;padding:11px 15px;font-weight:800
+}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue2)}
+.btn-light{background:#fff;border:1px solid var(--line);color:var(--text)}
+.btn-danger{background:#fff1f2;color:#be123c;border:1px solid #fecdd3}
+.input{
+  width:100%;border:1px solid #d7dce5;border-radius:12px;padding:12px 14px;
+  outline:none;background:#fff
+}
+.input:focus{border-color:#93c5fd;box-shadow:0 0 0 3px #dbeafe}
+.login-wrap{max-width:640px;margin:60px auto}
+.role-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+.role-card{
+  border:1px solid var(--line);border-radius:16px;padding:18px;background:#fff
+}
+.role-card h3{margin:0 0 6px}
+.role-card p{margin:0 0 14px;color:var(--muted);font-size:14px}
+.small{font-size:13px}.muted{color:var(--muted)}
+.error{
+  background:var(--redSoft);color:var(--red);padding:10px 12px;border-radius:10px;
+  margin-top:10px;font-size:14px
+}
+.success{
+  background:var(--greenSoft);color:var(--green);padding:10px 12px;border-radius:10px;
+  margin-top:10px;font-size:14px
+}
+.section-title{margin:0 0 6px;font-size:21px}
+.profile-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.avatar{
+  width:52px;height:52px;border-radius:15px;background:var(--blueSoft);
+  color:var(--blue);display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:21px
+}
+.student-identity{display:flex;gap:12px;align-items:center}
+.topic{
+  border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:12px
+}
+.topic-row{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.progress{height:9px;background:#eef2f7;border-radius:999px;overflow:hidden;margin-top:9px}
+.progress span{display:block;height:100%;background:var(--blue);border-radius:999px}
+.pill{
+  border-radius:999px;padding:5px 9px;font-size:12px;font-weight:800;display:inline-flex
+}
+.pill-good{background:var(--greenSoft);color:var(--green)}
+.pill-mid{background:var(--yellowSoft);color:var(--yellow)}
+.pill-low{background:var(--redSoft);color:var(--red)}
+.metric{font-size:30px;font-weight:900;margin-top:5px}
+.practice-card{
+  border:1px solid var(--line);border-radius:16px;padding:17px;height:100%
+}
+.practice-card h3{margin:0 0 7px}
+.practice-card p{margin:0 0 14px;color:var(--muted);font-size:14px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:11px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.question{
+  background:#fff;border:1px solid var(--line);border-radius:15px;padding:17px;margin-bottom:14px
+}
+.question h3{margin:0 0 12px;font-size:16px;line-height:1.5}
+.options{display:grid;gap:8px}
+.option{
+  display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);
+  border-radius:11px;padding:10px 12px;cursor:pointer
+}
+.option:hover{background:#f8fafc}
+.feedback{margin-top:10px;padding:10px 12px;border-radius:10px;font-size:14px}
+.feedback.ok{background:var(--greenSoft);color:var(--green)}
+.feedback.bad{background:var(--redSoft);color:var(--red)}
+.loading{
+  text-align:center;padding:30px;background:#fff;border:1px solid var(--line);
+  border-radius:16px;margin:18px 0
+}
+.spinner{
+  width:32px;height:32px;border:3px solid #dbeafe;border-top-color:var(--blue);
+  border-radius:50%;margin:0 auto 10px;animation:spin .8s linear infinite
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.attempt{
+  border:1px solid var(--line);border-radius:13px;padding:12px 14px;margin-top:9px
+}
+.attempt-row{display:flex;justify-content:space-between;gap:12px}
+.scorebox{
+  text-align:center;background:var(--blueSoft);border-radius:18px;padding:22px;margin-bottom:18px
+}
+.scorebox .big{font-size:46px;font-weight:900;color:var(--blue)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.student-list{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px
+}
+@media(max-width:700px){.student-list{grid-template-columns:1fr}.role-cards{grid-template-columns:1fr}}
+.student-summary{
+  border:1px solid var(--line);border-radius:14px;padding:14px
+}
+.footer{margin:24px 0 8px;text-align:center;color:var(--muted);font-size:12px}
+</style>
 </head>
 <body>
-<div class="app">
-  <div class="topbar">
-    <div class="brand">
-      <h1>GrammarPath Demo</h1>
-      <p>Personalised grammar practice — demo with Amy & Hanna</p>
-    </div>
-    <div class="tabs">
-      <button class="btn-primary" id="studentTabBtn">Student View</button>
-      <button class="btn-light" id="teacherTabBtn">Teacher Dashboard</button>
-    </div>
-  </div>
+<div class="shell">
 
-  <section id="studentHome">
-    <div class="card col-12">
-      <h2 class="section-title">Choose a student</h2>
-      <p class="muted">Demo data is saved only in this browser using localStorage.</p>
+  <!-- LANDING -->
+  <section id="landing" class="login-wrap">
+    <div class="brand" style="text-align:center">
+      <h1>GrammarPath</h1>
+      <p>Personalised grammar practice with adaptive feedback</p>
     </div>
-
-    <div class="grid" style="margin-top:18px">
-      <div class="card col-6 student-card">
-        <div class="student-name">
-          <div>
-            <h2 style="margin:0">Amy</h2>
-            <div class="muted small">Current focus: Present Simple</div>
-          </div>
-          <span class="pill">Student A</span>
+    <div class="card" style="margin-top:22px">
+      <h2 class="section-title">Choose your portal</h2>
+      <p class="muted">Students see only their own learning profile. Teachers can review the whole class.</p>
+      <div class="role-cards">
+        <div class="role-card">
+          <h3>Student Portal</h3>
+          <p>Enter your name to continue your own learning path.</p>
+          <button class="btn btn-primary" onclick="showStudentLogin()">Continue as Student</button>
         </div>
-        <div class="topic-list">
-          <div class="topic">
-            <div class="topic-row">
-              <strong>Present Simple</strong>
-              <span id="amyPresentText">60%</span>
-            </div>
-            <div class="progress"><span id="amyPresentBar" style="width:60%"></span></div>
-          </div>
-          <div class="topic">
-            <div class="topic-row">
-              <strong>Past Simple</strong>
-              <span id="amyPastText">80%</span>
-            </div>
-            <div class="progress"><span id="amyPastBar" style="width:80%"></span></div>
-          </div>
-        </div>
-        <div class="actions">
-          <button class="btn-primary" onclick="openStudent('Amy')">Start as Amy</button>
-        </div>
-      </div>
-
-      <div class="card col-6 student-card">
-        <div class="student-name">
-          <div>
-            <h2 style="margin:0">Hanna</h2>
-            <div class="muted small">Current focus: Past Simple</div>
-          </div>
-          <span class="pill">Student B</span>
-        </div>
-        <div class="topic-list">
-          <div class="topic">
-            <div class="topic-row">
-              <strong>Present Simple</strong>
-              <span id="hannaPresentText">85%</span>
-            </div>
-            <div class="progress"><span id="hannaPresentBar" style="width:85%"></span></div>
-          </div>
-          <div class="topic">
-            <div class="topic-row">
-              <strong>Past Simple</strong>
-              <span id="hannaPastText">55%</span>
-            </div>
-            <div class="progress"><span id="hannaPastBar" style="width:55%"></span></div>
-          </div>
-        </div>
-        <div class="actions">
-          <button class="btn-primary" onclick="openStudent('Hanna')">Start as Hanna</button>
+        <div class="role-card">
+          <h3>Teacher Portal</h3>
+          <p>View class progress, activity and learning history.</p>
+          <button class="btn btn-light" onclick="showTeacherLogin()">Continue as Teacher</button>
         </div>
       </div>
     </div>
   </section>
 
-  <section id="studentProfile" class="hidden">
+  <!-- STUDENT LOGIN -->
+  <section id="studentLogin" class="login-wrap hidden">
+    <button class="btn btn-light" onclick="goHome()">← Back</button>
+    <div class="card" style="margin-top:14px">
+      <h2 class="section-title">Student Login</h2>
+      <p class="muted">Enter your name exactly as registered by your teacher.</p>
+      <input id="studentNameInput" class="input" placeholder="Enter your name" autocomplete="off" />
+      <button class="btn btn-primary" style="margin-top:12px" onclick="studentLogin()">Open my profile</button>
+      <div id="studentLoginError" class="error hidden"></div>
+      <div class="muted small" style="margin-top:12px">Demo students: Amy, Hanna</div>
+    </div>
+  </section>
+
+  <!-- TEACHER LOGIN -->
+  <section id="teacherLogin" class="login-wrap hidden">
+    <button class="btn btn-light" onclick="goHome()">← Back</button>
+    <div class="card" style="margin-top:14px">
+      <h2 class="section-title">Teacher Login</h2>
+      <p class="muted">Enter the demo teacher PIN.</p>
+      <input id="teacherPinInput" class="input" type="password" placeholder="Teacher PIN" />
+      <button class="btn btn-primary" style="margin-top:12px" onclick="teacherLogin()">Open dashboard</button>
+      <div id="teacherLoginError" class="error hidden"></div>
+      <div class="muted small" style="margin-top:12px">Demo PIN: <strong>2468</strong></div>
+    </div>
+  </section>
+
+  <!-- STUDENT DASHBOARD -->
+  <section id="studentDashboard" class="hidden">
+    <div class="topbar">
+      <div class="brand">
+        <h1>GrammarPath</h1>
+        <p>Your personal English learning path</p>
+      </div>
+      <div class="toolbar">
+        <span class="role-badge">Student Portal</span>
+        <button class="btn btn-light" onclick="logout()">Log out</button>
+      </div>
+    </div>
+
     <div class="grid">
       <div class="card col-4">
-        <button class="btn-light" onclick="backToStudents()">← Back</button>
-        <h2 id="profileName" style="margin-bottom:4px"></h2>
-        <div class="muted small">Personal Learning Profile</div>
-
-        <div class="topic-list">
-          <div class="topic">
-            <div class="topic-row">
-              <strong>Present Simple</strong>
-              <span id="profilePresent"></span>
+        <div class="profile-head">
+          <div class="student-identity">
+            <div id="studentAvatar" class="avatar">A</div>
+            <div>
+              <h2 id="studentDisplayName" style="margin:0"></h2>
+              <div class="muted small">Personal Learning Profile</div>
             </div>
-            <div class="progress"><span id="profilePresentBar"></span></div>
-          </div>
-          <div class="topic">
-            <div class="topic-row">
-              <strong>Past Simple</strong>
-              <span id="profilePast"></span>
-            </div>
-            <div class="progress"><span id="profilePastBar"></span></div>
           </div>
         </div>
-
-        <div class="topic" style="margin-top:14px">
+        <div id="studentTopicProgress"></div>
+        <div class="topic">
           <div class="muted small">Recommended focus</div>
-          <div id="recommendedFocus" style="font-size:18px;font-weight:800;margin-top:4px"></div>
+          <div id="studentRecommended" style="font-weight:900;font-size:19px;margin-top:4px"></div>
         </div>
       </div>
 
       <div class="card col-8">
-        <h2 class="section-title">Practice</h2>
-        <p class="muted">Each practice contains 10 multiple-choice questions.</p>
-
+        <h2 class="section-title">My Practice</h2>
+        <p class="muted">Choose a topic. Each practice contains 10 questions.</p>
         <div class="grid">
-          <div class="card col-6" style="box-shadow:none">
-            <h3>Present Simple</h3>
-            <p class="muted small">Daily routines, do/does, third-person singular.</p>
-            <button class="btn-primary" onclick="startQuiz('present')">Start 10 questions</button>
+          <div class="col-6">
+            <div class="practice-card">
+              <h3>Present Simple</h3>
+              <p>Daily routines, do/does, third-person singular.</p>
+              <button class="btn btn-primary" onclick="startQuiz('present')">Start 10 questions</button>
+            </div>
           </div>
-          <div class="card col-6" style="box-shadow:none">
-            <h3>Past Simple</h3>
-            <p class="muted small">Regular/irregular verbs, did/didn't.</p>
-            <button class="btn-primary" onclick="startQuiz('past')">Start 10 questions</button>
+          <div class="col-6">
+            <div class="practice-card">
+              <h3>Past Simple</h3>
+              <p>Regular/irregular verbs, did/didn't.</p>
+              <button class="btn btn-primary" onclick="startQuiz('past')">Start 10 questions</button>
+            </div>
           </div>
         </div>
 
-        <div style="margin-top:18px">
-          <h3>Recent attempts</h3>
-          <div id="recentAttempts"></div>
-        </div>
+        <h3 style="margin-top:22px">My recent attempts</h3>
+        <div id="studentAttempts"></div>
       </div>
     </div>
   </section>
 
+  <!-- QUIZ -->
   <section id="quizView" class="hidden">
-    <div class="card">
-      <div class="topic-row">
-        <div>
-          <h2 class="section-title" id="quizTitle"></h2>
-          <div class="muted small" id="quizStudent"></div>
-        </div>
-        <button class="btn-light" onclick="cancelQuiz()">Exit practice</button>
+    <div class="topbar">
+      <div class="brand">
+        <h1 id="quizTitle">Practice</h1>
+        <p id="quizSubtitle"></p>
       </div>
+      <button class="btn btn-light" onclick="cancelQuiz()">Exit practice</button>
     </div>
 
-    <div id="loadingBox" class="loading-box hidden">
+    <div id="loadingBox" class="loading hidden">
       <div class="spinner"></div>
       <strong>Generating your personalised practice...</strong>
-      <div class="muted small" style="margin-top:6px">The app is creating 10 new questions for this learning profile.</div>
+      <div class="muted small" style="margin-top:6px">Creating 10 questions based on your current mastery.</div>
     </div>
-    <form id="quizForm" style="margin-top:18px"></form>
 
-    <div class="card">
-      <button class="btn-primary" id="submitQuizBtn" onclick="submitQuiz(event)">Submit answers</button>
+    <form id="quizForm"></form>
+
+    <div id="quizSubmitCard" class="card hidden">
+      <button class="btn btn-primary" onclick="submitQuiz(event)">Submit answers</button>
     </div>
   </section>
 
+  <!-- RESULT -->
   <section id="resultView" class="hidden">
     <div class="card">
-      <div class="score-box">
+      <div class="scorebox">
         <div class="muted">Your score</div>
         <div class="big" id="resultScore">0/10</div>
         <div id="resultMessage"></div>
       </div>
       <div id="resultFeedback"></div>
-      <div class="actions">
-        <button class="btn-primary" onclick="practiceAgain()">Practice again</button>
-        <button class="btn-light" onclick="returnToProfile()">Back to profile</button>
+      <div class="toolbar" style="margin-top:16px">
+        <button class="btn btn-primary" onclick="practiceAgain()">Practice again</button>
+        <button class="btn btn-light" onclick="backToStudentDashboard()">Back to my profile</button>
       </div>
     </div>
   </section>
 
-  <section id="teacherView" class="hidden">
+  <!-- TEACHER DASHBOARD -->
+  <section id="teacherDashboard" class="hidden">
+    <div class="topbar">
+      <div class="brand">
+        <h1>Teacher Dashboard</h1>
+        <p>Class activity, learning progress and practice history</p>
+      </div>
+      <div class="toolbar">
+        <span class="role-badge">Teacher Portal</span>
+        <button class="btn btn-light" onclick="logout()">Log out</button>
+      </div>
+    </div>
+
     <div class="grid">
-      <div class="card col-12">
-        <h2 class="section-title">Teacher Dashboard</h2>
-        <p class="muted">This demo reads practice history saved on this browser.</p>
+      <div class="card col-3">
+        <div class="muted small">Students</div>
+        <div class="metric" id="metricStudents">2</div>
       </div>
-
-      <div class="card col-4">
+      <div class="card col-3">
         <div class="muted small">Total attempts</div>
-        <div class="metric" id="totalAttemptsMetric">0</div>
+        <div class="metric" id="metricAttempts">0</div>
       </div>
-      <div class="card col-4">
-        <div class="muted small">Most active student</div>
-        <div class="metric" id="mostActiveMetric">—</div>
+      <div class="card col-3">
+        <div class="muted small">Most active</div>
+        <div class="metric" id="metricActive">—</div>
       </div>
-      <div class="card col-4">
+      <div class="card col-3">
         <div class="muted small">Highest average</div>
-        <div class="metric" id="highestAverageMetric">—</div>
+        <div class="metric" id="metricAverage">—</div>
       </div>
 
       <div class="card col-12">
-        <h3>Student progress</h3>
-        <div style="overflow-x:auto">
+        <h2 class="section-title">Class overview</h2>
+        <div class="table-wrap">
           <table>
             <thead>
               <tr>
@@ -454,67 +343,62 @@
                 <th>Present Simple</th>
                 <th>Past Simple</th>
                 <th>Attempts</th>
-                <th>Average score</th>
+                <th>Average</th>
                 <th>Last active</th>
               </tr>
             </thead>
             <tbody id="teacherTable"></tbody>
           </table>
         </div>
-        <div class="actions">
-          <button class="btn-danger" onclick="resetDemo()">Reset demo data</button>
-        </div>
+      </div>
+
+      <div class="card col-12">
+        <h2 class="section-title">Detailed learning history</h2>
+        <p class="muted">Select a student to review all practice attempts.</p>
+        <div id="teacherStudentCards" class="student-list"></div>
+        <div id="teacherHistory" style="margin-top:16px"></div>
       </div>
     </div>
   </section>
 
-  <div class="footer-note">
-    Version 2 — AI-generated practice via Vercel backend. Progress is still stored locally in this browser.
-  </div>
+  <div class="footer">GrammarPath demo · AI questions via Vercel backend · Progress stored locally in this browser</div>
 </div>
 
 <script>
+const STORAGE_KEY = "grammarPathDemo";
+const TEACHER_PIN = "2468";
+
 const defaultState = {
-  students: {
-    Amy: {
-      mastery: { present: 60, past: 80 },
-      attempts: []
-    },
-    Hanna: {
-      mastery: { present: 85, past: 55 },
-      attempts: []
-    }
+  students:{
+    Amy:{ mastery:{present:60,past:62}, attempts:[] },
+    Hanna:{ mastery:{present:85,past:55}, attempts:[] }
   }
 };
 
-const questionBank = {
-  present: [
-    {q:"She ___ to school by bus every day.", options:["go","goes","went","going"], answer:1, explain:"With he/she/it in the Present Simple, the verb usually takes -s/-es."},
-    {q:"___ your brother like football?", options:["Do","Does","Did","Is"], answer:1, explain:"Use 'Does' with he/she/it in Present Simple questions."},
-    {q:"I ___ coffee in the morning.", options:["drinks","drink","drank","drinking"], answer:1, explain:"With 'I', use the base form in the Present Simple."},
-    {q:"My parents ___ TV after dinner.", options:["watches","watch","watched","watching"], answer:1, explain:"Plural subjects take the base verb in the Present Simple."},
-    {q:"He ___ not play tennis on Mondays.", options:["do","does","did","is"], answer:1, explain:"Use 'does not / doesn't' with he/she/it."},
-    {q:"We usually ___ lunch at 12:00.", options:["have","has","had","having"], answer:0, explain:"With 'we', use the base verb."},
-    {q:"Anna ___ English very well.", options:["speak","speaks","spoke","speaking"], answer:1, explain:"Anna = she, so use 'speaks'."},
-    {q:"They ___ to music every evening.", options:["listens","listen","listened","listening"], answer:1, explain:"With 'they', use the base verb."},
-    {q:"___ you often read before bed?", options:["Do","Does","Did","Are"], answer:0, explain:"Use 'Do' with you/we/they/I in Present Simple questions."},
-    {q:"Tom never ___ late for class.", options:["arrive","arrives","arrived","arriving"], answer:1, explain:"Tom = he, so the verb takes -s."},
-    {q:"My sister ___ breakfast at 7 a.m.", options:["eat","eats","ate","eating"], answer:1, explain:"My sister = she, so use 'eats'."},
-    {q:"We ___ not study on Sunday.", options:["does","do","did","are"], answer:1, explain:"Use 'do not / don't' with we."}
+const fallbackBank = {
+  present:[
+    {q:"She ___ to school by bus every day.",options:["go","goes","went","going"],answer:1,explain:"With he/she/it in the Present Simple, the verb usually takes -s/-es."},
+    {q:"___ your brother like football?",options:["Do","Does","Did","Is"],answer:1,explain:"Use 'Does' with he/she/it in Present Simple questions."},
+    {q:"I ___ coffee in the morning.",options:["drinks","drink","drank","drinking"],answer:1,explain:"With 'I', use the base form in the Present Simple."},
+    {q:"My parents ___ TV after dinner.",options:["watches","watch","watched","watching"],answer:1,explain:"Plural subjects take the base verb in the Present Simple."},
+    {q:"He ___ not play tennis on Mondays.",options:["do","does","did","is"],answer:1,explain:"Use 'does not / doesn't' with he/she/it."},
+    {q:"We usually ___ lunch at 12:00.",options:["have","has","had","having"],answer:0,explain:"With 'we', use the base verb."},
+    {q:"Anna ___ English very well.",options:["speak","speaks","spoke","speaking"],answer:1,explain:"Anna = she, so use 'speaks'."},
+    {q:"They ___ to music every evening.",options:["listens","listen","listened","listening"],answer:1,explain:"With 'they', use the base verb."},
+    {q:"___ you often read before bed?",options:["Do","Does","Did","Are"],answer:0,explain:"Use 'Do' with you/we/they/I in Present Simple questions."},
+    {q:"Tom never ___ late for class.",options:["arrive","arrives","arrived","arriving"],answer:1,explain:"Tom = he, so the verb takes -s."}
   ],
-  past: [
-    {q:"Yesterday, I ___ to the supermarket.", options:["go","goes","went","going"], answer:2, explain:"'Yesterday' signals Past Simple. The past of 'go' is 'went'."},
-    {q:"She ___ her homework last night.", options:["finish","finishes","finished","finishing"], answer:2, explain:"Regular verbs usually take -ed in the Past Simple."},
-    {q:"___ you watch the film yesterday?", options:["Do","Does","Did","Are"], answer:2, explain:"Use 'Did' for Past Simple questions."},
-    {q:"He ___ not come to school on Monday.", options:["do","does","did","was"], answer:2, explain:"Use 'did not / didn't + base verb' in the Past Simple."},
-    {q:"We ___ dinner at a restaurant last weekend.", options:["have","has","had","having"], answer:2, explain:"The past of 'have' is 'had'."},
-    {q:"My friends ___ football after school yesterday.", options:["play","plays","played","playing"], answer:2, explain:"'Yesterday' signals Past Simple; 'play' becomes 'played'."},
-    {q:"I ___ a great book last month.", options:["read","reads","reading","will read"], answer:0, explain:"The past form of 'read' is spelled the same, though pronounced /red/."},
-    {q:"They ___ very tired after the trip.", options:["are","were","is","be"], answer:1, explain:"Use 'were' with they/we/you in the Past Simple of 'be'."},
-    {q:"She ___ a new bag two days ago.", options:["buy","buys","bought","buying"], answer:2, explain:"The past of 'buy' is 'bought'."},
-    {q:"We didn't ___ breakfast this morning.", options:["ate","eats","eat","eating"], answer:2, explain:"After 'didn't', use the base verb."},
-    {q:"Tom ___ his keys last week.", options:["lose","loses","lost","losing"], answer:2, explain:"The past of 'lose' is 'lost'."},
-    {q:"___ they visit Hanoi last summer?", options:["Do","Does","Did","Were"], answer:2, explain:"Use 'Did' for Past Simple questions."}
+  past:[
+    {q:"Yesterday, I ___ to the supermarket.",options:["go","goes","went","going"],answer:2,explain:"'Yesterday' signals Past Simple. The past of 'go' is 'went'."},
+    {q:"She ___ her homework last night.",options:["finish","finishes","finished","finishing"],answer:2,explain:"Regular verbs usually take -ed in the Past Simple."},
+    {q:"___ you watch the film yesterday?",options:["Do","Does","Did","Are"],answer:2,explain:"Use 'Did' for Past Simple questions."},
+    {q:"He ___ not come to school on Monday.",options:["do","does","did","was"],answer:2,explain:"Use 'did not / didn't + base verb' in the Past Simple."},
+    {q:"We ___ dinner at a restaurant last weekend.",options:["have","has","had","having"],answer:2,explain:"The past of 'have' is 'had'."},
+    {q:"My friends ___ football after school yesterday.",options:["play","plays","played","playing"],answer:2,explain:"'Yesterday' signals Past Simple; 'play' becomes 'played'."},
+    {q:"I ___ a great book last month.",options:["read","reads","reading","will read"],answer:0,explain:"The past form of 'read' is spelled the same, though pronounced /red/."},
+    {q:"They ___ very tired after the trip.",options:["are","were","is","be"],answer:1,explain:"Use 'were' with they/we/you in the Past Simple of 'be'."},
+    {q:"She ___ a new bag two days ago.",options:["buy","buys","bought","buying"],answer:2,explain:"The past of 'buy' is 'bought'."},
+    {q:"We didn't ___ breakfast this morning.",options:["ate","eats","eat","eating"],answer:2,explain:"After 'didn't', use the base verb."}
   ]
 };
 
@@ -525,279 +409,245 @@ let currentQuestions = [];
 let lastResult = null;
 
 function loadState(){
-  const saved = localStorage.getItem("grammarPathDemo");
-  if(saved){
-    try { return JSON.parse(saved); } catch(e){}
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(!raw) return JSON.parse(JSON.stringify(defaultState));
+  try{
+    const parsed = JSON.parse(raw);
+    if(!parsed.students) throw new Error("Invalid");
+    ["Amy","Hanna"].forEach(name=>{
+      if(!parsed.students[name]) parsed.students[name] = JSON.parse(JSON.stringify(defaultState.students[name]));
+      if(!parsed.students[name].attempts) parsed.students[name].attempts = [];
+      if(!parsed.students[name].mastery) parsed.students[name].mastery = {...defaultState.students[name].mastery};
+    });
+    return parsed;
+  }catch(e){
+    return JSON.parse(JSON.stringify(defaultState));
   }
-  return JSON.parse(JSON.stringify(defaultState));
 }
-
-function saveState(){
-  localStorage.setItem("grammarPathDemo", JSON.stringify(state));
-}
-
-function masteryLabel(score){
-  if(score >= 85) return '<span class="tag-good">Secure</span>';
-  if(score >= 65) return '<span class="tag-mid">Improving</span>';
-  return '<span class="tag-low">Needs practice</span>';
-}
-
-function topicName(key){
-  return key === "present" ? "Present Simple" : "Past Simple";
-}
-
-function recommendedFor(name){
-  const m = state.students[name].mastery;
-  return m.present <= m.past ? "Present Simple" : "Past Simple";
-}
-
-function updateHome(){
-  ["Amy","Hanna"].forEach(name=>{
-    const prefix = name.toLowerCase();
-    const m = state.students[name].mastery;
-    document.getElementById(prefix+"PresentText").textContent = m.present+"%";
-    document.getElementById(prefix+"PastText").textContent = m.past+"%";
-    document.getElementById(prefix+"PresentBar").style.width = m.present+"%";
-    document.getElementById(prefix+"PastBar").style.width = m.past+"%";
-  });
-}
-
+function saveState(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}
 function showOnly(id){
-  ["studentHome","studentProfile","quizView","resultView","teacherView"].forEach(x=>{
-    document.getElementById(x).classList.toggle("hidden", x !== id);
-  });
+  ["landing","studentLogin","teacherLogin","studentDashboard","quizView","resultView","teacherDashboard"]
+  .forEach(x=>document.getElementById(x).classList.toggle("hidden",x!==id));
 }
-
-function openStudent(name){
-  currentStudent = name;
-  renderProfile();
-  showOnly("studentProfile");
+function goHome(){showOnly("landing")}
+function logout(){currentStudent=null;showOnly("landing")}
+function showStudentLogin(){
+  document.getElementById("studentNameInput").value="";
+  document.getElementById("studentLoginError").classList.add("hidden");
+  showOnly("studentLogin")
 }
-
-function renderProfile(){
-  const data = state.students[currentStudent];
-  document.getElementById("profileName").textContent = currentStudent;
-  document.getElementById("profilePresent").innerHTML = `${data.mastery.present}% · ${masteryLabel(data.mastery.present)}`;
-  document.getElementById("profilePast").innerHTML = `${data.mastery.past}% · ${masteryLabel(data.mastery.past)}`;
-  document.getElementById("profilePresentBar").style.width = data.mastery.present+"%";
-  document.getElementById("profilePastBar").style.width = data.mastery.past+"%";
-  document.getElementById("recommendedFocus").textContent = recommendedFor(currentStudent);
-  renderRecentAttempts();
+function showTeacherLogin(){
+  document.getElementById("teacherPinInput").value="";
+  document.getElementById("teacherLoginError").classList.add("hidden");
+  showOnly("teacherLogin")
 }
-
-function renderRecentAttempts(){
-  const box = document.getElementById("recentAttempts");
-  const attempts = [...state.students[currentStudent].attempts].reverse().slice(0,5);
-  if(!attempts.length){
-    box.innerHTML = '<div class="empty">No practice yet.</div>';
-    return;
+function normalizedStudentName(input){
+  const clean=(input||"").trim().toLowerCase();
+  return Object.keys(state.students).find(n=>n.toLowerCase()===clean)||null;
+}
+function studentLogin(){
+  const name=normalizedStudentName(document.getElementById("studentNameInput").value);
+  const err=document.getElementById("studentLoginError");
+  if(!name){
+    err.textContent="Student not found. Please check the name and try again.";
+    err.classList.remove("hidden"); return;
   }
-  box.innerHTML = attempts.map(a=>`
+  currentStudent=name;
+  renderStudentDashboard();
+  showOnly("studentDashboard");
+}
+function teacherLogin(){
+  const pin=document.getElementById("teacherPinInput").value;
+  const err=document.getElementById("teacherLoginError");
+  if(pin!==TEACHER_PIN){
+    err.textContent="Incorrect teacher PIN.";
+    err.classList.remove("hidden");return;
+  }
+  renderTeacherDashboard();
+  showOnly("teacherDashboard");
+}
+function topicLabel(k){return k==="present"?"Present Simple":"Past Simple"}
+function statusPill(score){
+  if(score>=85)return '<span class="pill pill-good">Secure</span>';
+  if(score>=65)return '<span class="pill pill-mid">Improving</span>';
+  return '<span class="pill pill-low">Needs practice</span>';
+}
+function recommended(name){
+  const m=state.students[name].mastery;
+  return m.present<=m.past?"Present Simple":"Past Simple";
+}
+function renderStudentDashboard(){
+  const s=state.students[currentStudent];
+  document.getElementById("studentDisplayName").textContent=currentStudent;
+  document.getElementById("studentAvatar").textContent=currentStudent[0].toUpperCase();
+  document.getElementById("studentRecommended").textContent=recommended(currentStudent);
+
+  document.getElementById("studentTopicProgress").innerHTML = ["present","past"].map(k=>`
     <div class="topic">
       <div class="topic-row">
-        <strong>${topicName(a.topic)}</strong>
-        <span>${a.score}/10</span>
+        <strong>${topicLabel(k)}</strong>
+        <div>${s.mastery[k]}% · ${statusPill(s.mastery[k])}</div>
+      </div>
+      <div class="progress"><span style="width:${s.mastery[k]}%"></span></div>
+    </div>`).join("");
+
+  const attempts=[...s.attempts].reverse().slice(0,6);
+  document.getElementById("studentAttempts").innerHTML=attempts.length?attempts.map(a=>`
+    <div class="attempt">
+      <div class="attempt-row">
+        <strong>${topicLabel(a.topic)}</strong>
+        <strong>${a.score}/10</strong>
       </div>
       <div class="muted small">${new Date(a.date).toLocaleString()}</div>
-    </div>
-  `).join("");
-}
-
-function backToStudents(){
-  currentStudent = null;
-  updateHome();
-  showOnly("studentHome");
-}
-
-function shuffle(arr){
-  return [...arr].sort(()=>Math.random() - 0.5);
+    </div>`).join(""):'<div class="muted small">No practice yet.</div>';
 }
 
 async function startQuiz(topic){
-  currentTopic = topic;
-  document.getElementById("quizTitle").textContent = topicName(topic) + " — 10 Questions";
-  document.getElementById("quizStudent").textContent = "Student: " + currentStudent;
-  document.getElementById("quizForm").innerHTML = "";
-  document.getElementById("submitQuizBtn").disabled = true;
+  currentTopic=topic;
+  document.getElementById("quizTitle").textContent=topicLabel(topic)+" — 10 Questions";
+  document.getElementById("quizSubtitle").textContent="Student: "+currentStudent;
+  document.getElementById("quizForm").innerHTML="";
+  document.getElementById("quizSubmitCard").classList.add("hidden");
   document.getElementById("loadingBox").classList.remove("hidden");
   showOnly("quizView");
 
-  const mastery = state.students[currentStudent].mastery[topic];
-
+  const mastery=state.students[currentStudent].mastery[topic];
   try{
-    const response = await fetch("/api/generate", {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({
-        student: currentStudent,
-        topic,
-        mastery
-      })
+    const response=await fetch("/api/generate",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({student:currentStudent,topic,mastery})
     });
-
-    if(!response.ok){
-      const errorText = await response.text();
-      throw new Error(errorText || "API request failed");
-    }
-
-    const data = await response.json();
-    if(!Array.isArray(data.questions) || data.questions.length < 10){
-      throw new Error("The API did not return 10 valid questions.");
-    }
-
-    currentQuestions = data.questions.slice(0,10);
+    if(!response.ok) throw new Error(await response.text());
+    const data=await response.json();
+    if(!Array.isArray(data.questions)||data.questions.length<10)throw new Error("Invalid questions");
+    currentQuestions=data.questions.slice(0,10);
   }catch(err){
-    console.error("AI generation failed. Falling back to local bank:", err);
-    alert("AI generation is temporarily unavailable. The app will use the built-in question bank for this practice.");
-    currentQuestions = shuffle(questionBank[topic]).slice(0,10);
+    console.error(err);
+    currentQuestions=[...fallbackBank[topic]].sort(()=>Math.random()-.5).slice(0,10);
   }
 
   document.getElementById("loadingBox").classList.add("hidden");
-  const form = document.getElementById("quizForm");
-  form.innerHTML = currentQuestions.map((item, idx)=>`
-    <div class="question" id="q${idx}">
-      <h3>${idx+1}. ${item.q}</h3>
+  document.getElementById("quizForm").innerHTML=currentQuestions.map((item,i)=>`
+    <div class="question">
+      <h3>${i+1}. ${item.q}</h3>
       <div class="options">
-        ${item.options.map((opt, oi)=>`
+        ${item.options.map((o,oi)=>`
           <label class="option">
-            <input type="radio" name="q${idx}" value="${oi}">
-            <span>${opt}</span>
-          </label>
-        `).join("")}
+            <input type="radio" name="q${i}" value="${oi}">
+            <span>${o}</span>
+          </label>`).join("")}
       </div>
-      <div class="feedback hidden" id="fb${idx}"></div>
-    </div>
-  `).join("");
-  document.getElementById("submitQuizBtn").disabled = false;
+    </div>`).join("");
+  document.getElementById("quizSubmitCard").classList.remove("hidden");
 }
-
+function cancelQuiz(){renderStudentDashboard();showOnly("studentDashboard")}
 function submitQuiz(e){
   e.preventDefault();
-  let correct = 0;
-  const answers = [];
-
-  currentQuestions.forEach((item, idx)=>{
-    const checked = document.querySelector(`input[name="q${idx}"]:checked`);
-    const selected = checked ? Number(checked.value) : null;
-    const isCorrect = selected === item.answer;
-    if(isCorrect) correct++;
-    answers.push({selected, isCorrect});
+  const answers=currentQuestions.map((item,i)=>{
+    const checked=document.querySelector(`input[name="q${i}"]:checked`);
+    return checked?Number(checked.value):null;
   });
+  if(answers.some(v=>v===null)){alert("Please answer all 10 questions.");return}
 
-  if(answers.some(a=>a.selected === null)){
-    alert("Please answer all 10 questions before submitting.");
-    return;
-  }
-
-  const fbHTML = currentQuestions.map((item, idx)=>{
-    const a = answers[idx];
-    const cls = a.isCorrect ? "ok" : "bad";
-    const title = a.isCorrect ? "✓ Correct" : `✗ Correct answer: ${item.options[item.answer]}`;
-    return `<div class="feedback ${cls}"><strong>${idx+1}. ${title}</strong><br>${item.explain}</div>`;
+  let score=0;
+  const feedback=currentQuestions.map((item,i)=>{
+    const ok=answers[i]===item.answer;
+    if(ok)score++;
+    return `<div class="feedback ${ok?"ok":"bad"}">
+      <strong>${i+1}. ${ok?"✓ Correct":"✗ Correct answer: "+item.options[item.answer]}</strong><br>
+      ${item.explain}
+    </div>`;
   }).join("");
 
-  const attempt = {
-    topic: currentTopic,
-    score: correct,
-    date: new Date().toISOString()
-  };
-
+  const attempt={topic:currentTopic,score,date:new Date().toISOString()};
   state.students[currentStudent].attempts.push(attempt);
-
-  // Simple demo learning logic:
-  // new mastery = 70% old mastery + 30% latest quiz percentage
-  const oldMastery = state.students[currentStudent].mastery[currentTopic];
-  const quizPercent = correct * 10;
-  const updated = Math.round(oldMastery * 0.7 + quizPercent * 0.3);
-  state.students[currentStudent].mastery[currentTopic] = Math.max(0, Math.min(100, updated));
-
+  const old=state.students[currentStudent].mastery[currentTopic];
+  const updated=Math.round(old*.7+(score*10)*.3);
+  state.students[currentStudent].mastery[currentTopic]=Math.max(0,Math.min(100,updated));
   saveState();
-  lastResult = {score:correct, topic:currentTopic};
 
-  document.getElementById("resultScore").textContent = `${correct}/10`;
-  document.getElementById("resultMessage").textContent =
-    correct >= 9 ? "Excellent. You are ready for more challenging practice." :
-    correct >= 7 ? "Good progress. Keep practising this area." :
+  lastResult={topic:currentTopic,score};
+  document.getElementById("resultScore").textContent=score+"/10";
+  document.getElementById("resultMessage").textContent=
+    score>=9?"Excellent. You are ready for more challenging practice.":
+    score>=7?"Good progress. Keep practising this area.":
     "This topic still needs more practice.";
-  document.getElementById("resultFeedback").innerHTML = fbHTML;
+  document.getElementById("resultFeedback").innerHTML=feedback;
   showOnly("resultView");
 }
+function practiceAgain(){startQuiz(lastResult.topic)}
+function backToStudentDashboard(){renderStudentDashboard();showOnly("studentDashboard")}
 
-function practiceAgain(){
-  startQuiz(lastResult.topic);
+function avgScore(attempts){
+  if(!attempts.length)return null;
+  return attempts.reduce((s,a)=>s+a.score,0)/attempts.length;
 }
+function renderTeacherDashboard(){
+  const names=Object.keys(state.students);
+  const total=names.reduce((sum,n)=>sum+state.students[n].attempts.length,0);
+  document.getElementById("metricStudents").textContent=names.length;
+  document.getElementById("metricAttempts").textContent=total;
 
-function returnToProfile(){
-  renderProfile();
-  showOnly("studentProfile");
-}
-
-function cancelQuiz(){
-  renderProfile();
-  showOnly("studentProfile");
-}
-
-function teacherDashboard(){
-  showOnly("teacherView");
-  renderTeacher();
-}
-
-function renderTeacher(){
-  const names = Object.keys(state.students);
-  const rows = names.map(name=>{
-    const s = state.students[name];
-    const attempts = s.attempts;
-    const avg = attempts.length ? (attempts.reduce((sum,a)=>sum+a.score,0) / attempts.length).toFixed(1) : "—";
-    const last = attempts.length ? new Date(attempts[attempts.length-1].date).toLocaleString() : "Never";
-    return `
-      <tr>
-        <td><strong>${name}</strong></td>
-        <td>${recommendedFor(name)}</td>
-        <td>${s.mastery.present}%</td>
-        <td>${s.mastery.past}%</td>
-        <td>${attempts.length}</td>
-        <td>${avg === "—" ? "—" : avg + "/10"}</td>
-        <td>${last}</td>
-      </tr>
-    `;
-  }).join("");
-  document.getElementById("teacherTable").innerHTML = rows;
-
-  const totalAttempts = names.reduce((sum,n)=>sum+state.students[n].attempts.length,0);
-  document.getElementById("totalAttemptsMetric").textContent = totalAttempts;
-
-  const sortedByActive = [...names].sort((a,b)=>state.students[b].attempts.length-state.students[a].attempts.length);
-  const topActive = state.students[sortedByActive[0]].attempts.length ? sortedByActive[0] : "—";
-  document.getElementById("mostActiveMetric").textContent = topActive;
-
-  let bestName = "—", bestAvg = -1;
-  names.forEach(name=>{
-    const at = state.students[name].attempts;
-    if(at.length){
-      const avg = at.reduce((s,a)=>s+a.score,0)/at.length;
-      if(avg > bestAvg){ bestAvg = avg; bestName = name; }
-    }
+  let most="—", mostCount=0, best="—", bestAvg=-1;
+  names.forEach(n=>{
+    const at=state.students[n].attempts;
+    if(at.length>mostCount){mostCount=at.length;most=n}
+    const a=avgScore(at);
+    if(a!==null&&a>bestAvg){bestAvg=a;best=n}
   });
-  document.getElementById("highestAverageMetric").textContent =
-    bestAvg >= 0 ? `${bestName} (${bestAvg.toFixed(1)}/10)` : "—";
+  document.getElementById("metricActive").textContent=most;
+  document.getElementById("metricAverage").textContent=bestAvg>=0?`${best} (${bestAvg.toFixed(1)}/10)`:"—";
+
+  document.getElementById("teacherTable").innerHTML=names.map(n=>{
+    const s=state.students[n], a=avgScore(s.attempts);
+    const last=s.attempts.length?new Date(s.attempts[s.attempts.length-1].date).toLocaleString():"Never";
+    return `<tr>
+      <td><strong>${n}</strong></td>
+      <td>${recommended(n)}</td>
+      <td>${s.mastery.present}%</td>
+      <td>${s.mastery.past}%</td>
+      <td>${s.attempts.length}</td>
+      <td>${a===null?"—":a.toFixed(1)+"/10"}</td>
+      <td>${last}</td>
+    </tr>`;
+  }).join("");
+
+  document.getElementById("teacherStudentCards").innerHTML=names.map(n=>{
+    const s=state.students[n], a=avgScore(s.attempts);
+    return `<div class="student-summary">
+      <div class="topic-row"><strong>${n}</strong><span>${s.attempts.length} attempts</span></div>
+      <div class="muted small" style="margin-top:5px">Focus: ${recommended(n)} · Average: ${a===null?"—":a.toFixed(1)+"/10"}</div>
+      <button class="btn btn-light" style="margin-top:10px" onclick="showTeacherHistory('${n}')">View full history</button>
+    </div>`;
+  }).join("");
+
+  document.getElementById("teacherHistory").innerHTML="";
+}
+function showTeacherHistory(name){
+  const s=state.students[name];
+  const attempts=[...s.attempts].reverse();
+  document.getElementById("teacherHistory").innerHTML=`
+    <div class="topic">
+      <h3 style="margin-top:0">${name} — Full Learning History</h3>
+      <div class="grid">
+        <div class="col-6"><strong>Present Simple:</strong> ${s.mastery.present}%</div>
+        <div class="col-6"><strong>Past Simple:</strong> ${s.mastery.past}%</div>
+      </div>
+      <div style="margin-top:12px">
+        ${attempts.length?attempts.map((a,i)=>`
+          <div class="attempt">
+            <div class="attempt-row">
+              <strong>${topicLabel(a.topic)}</strong>
+              <strong>${a.score}/10</strong>
+            </div>
+            <div class="muted small">${new Date(a.date).toLocaleString()}</div>
+          </div>`).join(""):'<div class="muted small">No practice history yet.</div>'}
+      </div>
+    </div>`;
 }
 
-function resetDemo(){
-  if(confirm("Reset all demo practice data?")){
-    localStorage.removeItem("grammarPathDemo");
-    state = JSON.parse(JSON.stringify(defaultState));
-    updateHome();
-    renderTeacher();
-  }
-}
-
-document.getElementById("studentTabBtn").addEventListener("click", ()=>{
-  updateHome();
-  showOnly("studentHome");
-});
-document.getElementById("teacherTabBtn").addEventListener("click", teacherDashboard);
-
-updateHome();
+goHome();
 </script>
 </body>
 </html>
