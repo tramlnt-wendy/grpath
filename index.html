@@ -108,7 +108,7 @@ body{
 .theory{background:var(--yellowSoft);border:1px solid #fde68a;border-radius:18px;padding:18px;margin-top:14px}.formula{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#fff;border:1px solid #fde68a;border-radius:10px;padding:10px 12px;margin:8px 0}
 table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:11px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}.table-wrap{overflow-x:auto}
 .metric{font-size:30px;font-weight:900;margin-top:4px}.homework-sheet{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;margin-top:16px}.homework-sheet h2,.homework-sheet h3{margin-top:0}
-.hw-section{margin-top:18px}.hw-item{margin:8px 0;line-height:1.5}.error{background:var(--redSoft);color:var(--red);padding:10px 12px;border-radius:10px;margin-top:10px}.success{background:var(--greenSoft);color:#166534;padding:10px 12px;border-radius:10px;margin-top:10px}
+.hw-section{margin-top:22px}.hw-item{margin:14px 0 18px;line-height:1.55}.hw-question{font-weight:750;color:#17324d}.hw-options{display:grid;grid-template-columns:1fr 1fr;gap:7px 16px;margin:8px 0 0 24px;color:#334e68}.hw-option{padding:4px 0}.hw-answer-key{margin-top:26px;padding-top:18px;border-top:2px solid #dce9f2}.hw-answer-key .hw-item{margin:7px 0}.error{background:var(--redSoft);color:var(--red);padding:10px 12px;border-radius:10px;margin-top:10px}.success{background:var(--greenSoft);color:#166534;padding:10px 12px;border-radius:10px;margin-top:10px}@media(max-width:700px){.hw-options{grid-template-columns:1fr}}
 #homeView{
   margin-top:44px;
   position:relative;
@@ -700,9 +700,40 @@ async function generateHomework(name){
   try{const r=await fetch("/api/homework",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({pin:teacherPinMemory,student:name,topic:summary.topic||"English 7 practice",latestMainScore:summary.latestMainScore,finalLevel:summary.finalLevel,weakAreas:summary.weakAreas,latestPersonalPractice:summary.latestPersonalPractice})});if(!r.ok)throw new Error(await r.text());const hw=await r.json();renderHomework(hw.homework)}
   catch(e){document.getElementById("homeworkPrintArea").innerHTML="<div class='error'>Could not generate homework.</div>"}document.getElementById("homeworkLoading").classList.add("hidden");
 }
+function homeworkItemPlain(item,number){
+  let text=`${number}. ${String(item.prompt||"").replace(/\[\[|\]\]/g,"")}`;
+  if(item.type==="mcq"&&Array.isArray(item.options)){
+    const letters=["A","B","C","D"];
+    text+="\n"+item.options.map((o,i)=>`   ${letters[i]}. ${String(o).replace(/\[\[|\]\]/g,"")}`).join("\n");
+  }
+  return text;
+}
+function homeworkItemHtml(item,number){
+  const prompt=formatMarkedText(item.prompt||"");
+  if(item.type==="mcq"&&Array.isArray(item.options)){
+    const letters=["A","B","C","D"];
+    return `<div class="hw-item"><div class="hw-question">${number}. ${prompt}</div><div class="hw-options">${item.options.map((o,i)=>`<div class="hw-option"><strong>${letters[i]}.</strong> ${formatMarkedText(o)}</div>`).join("")}</div></div>`;
+  }
+  return `<div class="hw-item"><div class="hw-question">${number}. ${prompt}</div></div>`;
+}
 function renderHomework(hw){
-  currentHomeworkText=`${hw.title}\nStudent: ${hw.student}\nFocus: ${hw.focus}\nDifficulty: ${hw.difficulty}\n\n`+hw.sections.map(s=>`${s.title}\n${s.instructions}\n${s.items.map((x,i)=>`${i+1}. ${x}`).join("\n")}`).join("\n\n")+`\n\nTeacher Answer Key\n${hw.answerKey.map((x,i)=>`${i+1}. ${x}`).join("\n")}`;
-  document.getElementById("homeworkPrintArea").innerHTML=`<h2>${hw.title}</h2><div><strong>Student:</strong> ${hw.student}</div><div><strong>Focus:</strong> ${hw.focus}</div><div><strong>Difficulty:</strong> ${hw.difficulty}</div>${hw.sections.map(s=>`<div class="hw-section"><h3>${s.title}</h3><div class="muted">${s.instructions}</div>${s.items.map((x,i)=>`<div class="hw-item">${i+1}. ${x}</div>`).join("")}</div>`).join("")}<div class="hw-section"><h3>Teacher Answer Key</h3>${hw.answerKey.map((x,i)=>`<div class="hw-item">${i+1}. ${x}</div>`).join("")}</div>`;
+  let n=1;
+  const plainSections=hw.sections.map(s=>{
+    const lines=[s.title];
+    if(s.instructions)lines.push(s.instructions);
+    s.items.forEach(item=>lines.push(homeworkItemPlain(item,n++)));
+    return lines.join("\n");
+  }).join("\n\n");
+  currentHomeworkText=`${hw.title}\nStudent: ${hw.student}\nFocus: ${hw.focus}\nDifficulty: ${hw.difficulty}\n\n${plainSections}\n\nAnswer Key\n${hw.answerKey.map((x,i)=>`${i+1}. ${String(x).replace(/\[\[|\]\]/g,"")}`).join("\n")}`;
+
+  n=1;
+  const sectionsHtml=hw.sections.map(s=>{
+    const items=s.items.map(item=>homeworkItemHtml(item,n++)).join("");
+    return `<div class="hw-section"><h3>${s.title}</h3>${s.instructions?`<div class="muted">${s.instructions}</div>`:""}${items}</div>`;
+  }).join("");
+  const answersHtml=hw.answerKey.map((x,i)=>`<div class="hw-item"><strong>${i+1}.</strong> ${formatMarkedText(x)}</div>`).join("");
+
+  document.getElementById("homeworkPrintArea").innerHTML=`<h2>${hw.title}</h2><div><strong>Student:</strong> ${hw.student}</div><div><strong>Focus:</strong> ${hw.focus}</div><div><strong>Difficulty:</strong> ${hw.difficulty}</div>${sectionsHtml}<div class="hw-answer-key"><h3>Answer Key</h3>${answersHtml}</div>`;
 }
 async function copyHomework(){try{await navigator.clipboard.writeText(currentHomeworkText);alert("Homework copied.")}catch(e){alert("Copy failed. You can select and copy the homework manually.")}}
 
