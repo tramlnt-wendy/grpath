@@ -45,8 +45,8 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:11px 10px
 
 <section id="homeView" class="card" style="margin-top:60px">
   <span class="pill">GrammarPath</span>
-  <h1 style="margin:10px 0 6px">Past Simple Adaptive Practice</h1>
-  <p class="muted">One lesson, different learning paths.</p>
+  <h1 style="margin:10px 0 6px">AI-Enhanced Adaptive Grammar Practice</h1>
+  <p class="muted">Choose today’s topic. The app adapts the next question to your answers.</p>
   <div class="role-grid">
     <div class="role-card">
       <h3>Student Practice</h3>
@@ -64,13 +64,17 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:11px 10px
 <section id="studentLoginView" class="card hidden" style="margin-top:60px">
   <button class="btn btn-light" onclick="showOnly('homeView')">← Back</button>
   <h2 style="margin-top:18px">Student Practice</h2>
-  <input id="studentName" class="input" placeholder="Enter your name">
-  <button class="btn btn-primary" style="margin-top:12px" onclick="startMainSession()">Start Past Simple</button>
+  <label class="small muted" for="studentName">Your name</label>
+  <input id="studentName" class="input" placeholder="Enter your name" style="margin-top:6px">
+  <label class="small muted" for="topicSelect" style="display:block;margin-top:14px">Choose today’s practice topic</label>
+  <select id="topicSelect" class="input" style="margin-top:6px"></select>
+  <div id="topicGuide" class="small muted" style="margin-top:8px"></div>
+  <button class="btn btn-primary" style="margin-top:14px" onclick="startMainSession()">Start practice</button>
 </section>
 
 <section id="practiceView" class="hidden">
   <div class="topbar">
-    <div><h2 style="margin:0 0 3px" id="practiceTitle">Past Simple</h2><div class="muted small" id="studentLabel"></div></div>
+    <div><h2 style="margin:0 0 3px" id="practiceTitle">Adaptive Practice</h2><div class="muted small" id="studentLabel"></div></div>
     <span class="pill" id="questionCounter">Question 1/10</span>
   </div>
   <div class="card">
@@ -139,7 +143,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:11px 10px
 
 <section id="teacherView" class="hidden">
   <div class="topbar">
-    <div><h1 style="margin:0">Teacher Dashboard</h1><div class="muted small">Past Simple class overview</div></div>
+    <div><h1 style="margin:0">Teacher Dashboard</h1><div class="muted small">Adaptive practice class overview</div></div>
     <div class="toolbar"><span class="pill">Teacher</span><button class="btn btn-light" onclick="teacherLogout()">Log out</button></div>
   </div>
 
@@ -156,7 +160,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:11px 10px
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Student</th><th>Main Score</th><th>Level</th><th>Weak Area</th><th>Personal Practice</th><th>Last Active</th><th>Homework</th></tr></thead>
+          <thead><tr><th>Student</th><th>Topic</th><th>Main Score</th><th>Level</th><th>Weak Area</th><th>Personal Practice</th><th>Last Active</th><th>Homework</th></tr></thead>
           <tbody id="summaryBody"></tbody>
         </table>
       </div>
@@ -166,7 +170,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:11px 10px
       <h2 id="historyTitle">Student History</h2>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Time</th><th>Session</th><th>Score</th><th>Level</th><th>Weak Area</th><th>Target</th></tr></thead>
+          <thead><tr><th>Time</th><th>Topic</th><th>Session</th><th>Score</th><th>Level</th><th>Weak Area</th><th>Target</th></tr></thead>
           <tbody id="historyBody"></tbody>
         </table>
       </div>
@@ -187,158 +191,220 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:11px 10px
 </section>
 </div>
 
+<script src="/question-bank.js"></script>
 <script>
-const THEORY={
-  affirmative:{title:"Past Simple — affirmative",formula:"S + V2/ed + ...",note:"Use the Past Simple for finished actions in the past.",example:"She visited her grandmother yesterday."},
-  negative:{title:"Past Simple — negative",formula:"S + did not (didn't) + V1 + ...",note:"After didn't, use the base form.",example:"She didn't go to school yesterday."},
-  questions:{title:"Past Simple — questions",formula:"Did + S + V1 + ... ?",note:"After Did, use the base form.",example:"Did you watch the film last night?"},
-  be:{title:"Past Simple of BE",formula:"I/He/She/It + was | You/We/They + were",note:"Use wasn't / weren't for negatives.",example:"They were tired. Was she at home?"},
-  irregular_verbs:{title:"Irregular verbs",formula:"V1 → special V2 form",note:"Irregular verbs do not simply add -ed.",example:"go → went | buy → bought | see → saw"},
-  regular_verbs:{title:"Regular verbs",formula:"V1 + -ed → V2",note:"Most regular verbs form the past with -ed.",example:"play → played | study → studied"},
-  time_markers:{title:"Past time markers",formula:"yesterday | last ... | ... ago | in + past year",note:"Past time expressions often signal the Past Simple.",example:"last night, two days ago"},
-  error_correction:{title:"Past Simple editing check",formula:"Check: time → auxiliary → verb form",note:"Check did/didn't and the verb form.",example:"She didn't went → She didn't go"},
-  mixed_advanced:{title:"Past Simple challenge",formula:"Meaning + time marker + correct past form",note:"Apply the tense accurately in longer contexts.",example:"After the lesson ended, we walked home."}
-};
+const BANK = window.GRAMMAR_BANK;
+const TOPICS = BANK.topics;
+const QUESTIONS = BANK.questions;
+const THEORY_MAP = BANK.theory || {};
 
-let student="",mode="main",totalQuestions=10,currentIndex=0,currentLevel=2,score=0,currentQuestion=null,answered=false;
-let correctStreak=0,bestStreak=0,history=[],lastConcept="general",lastWasWrong=false,mainWeaknesses=[],personalTarget="mixed_advanced";
-let teacherPinMemory="",teacherDataCache=null,currentHomeworkText="";
-
-const fallback={
-  1:{q:"Yesterday, I ___ football.",options:["play","played","plays","playing"],answer:1,explain:"Use the Past Simple after 'yesterday'.",concept:"regular_verbs"},
-  2:{q:"___ you watch TV yesterday?",options:["Do","Does","Did","Are"],answer:2,explain:"Past Simple questions use Did + subject + base verb.",concept:"questions"},
-  3:{q:"Choose the correct sentence.",options:["She didn't went to school.","She didn't go to school.","She doesn't went to school.","She not go to school."],answer:1,explain:"Use didn't + base verb.",concept:"negative"},
-  4:{q:"Which sentence is grammatically correct?",options:["Did she went home?","Did she go home?","Does she went home?","She did went home?"],answer:1,explain:"Use Did + subject + base verb.",concept:"questions"}
-};
+let student="", selectedTopicId="", selectedTopic=null, mode="main";
+let totalQuestions=10,currentIndex=0,currentLevel=2,score=0,currentQuestion=null,answered=false;
+let correctStreak=0,wrongStreak=0,bestStreak=0,history=[],lastConcept="general",lastWasWrong=false,scaffoldNext=false;
+let mainWeaknesses=[],personalTarget="",teacherPinMemory="",teacherDataCache=null,currentHomeworkText="";
+let seenQuestionIds=new Set(),seenQuestionTexts=[];
 
 function showOnly(id){
   ["homeView","studentLoginView","practiceView","mainResultView","personalResultView","teacherLoginView","teacherView"].forEach(x=>document.getElementById(x).classList.toggle("hidden",x!==id));
 }
-function openStudent(){showOnly("studentLoginView")}
+function openStudent(){populateTopicSelect();showOnly("studentLoginView")}
 function openTeacherLogin(){document.getElementById("teacherPin").value="";document.getElementById("teacherLoginError").classList.add("hidden");showOnly("teacherLoginView")}
-function conceptLabel(c){const m={affirmative:"Affirmative form",negative:"Negative form",questions:"Questions",be:"Past Simple of BE",irregular_verbs:"Irregular verbs",regular_verbs:"Regular verbs",time_markers:"Past time markers",error_correction:"Error correction",mixed_advanced:"Advanced application"};return m[c]||c}
 
+function populateTopicSelect(){
+  const sel=document.getElementById("topicSelect");
+  if(sel.options.length) return;
+  TOPICS.forEach(t=>{const o=document.createElement("option");o.value=t.id;o.textContent=t.title;sel.appendChild(o)});
+  sel.addEventListener("change",updateTopicGuide);updateTopicGuide();
+}
+function updateTopicGuide(){
+  const t=TOPICS.find(x=>x.id===document.getElementById("topicSelect").value)||TOPICS[0];
+  document.getElementById("topicGuide").textContent=t.guide;
+}
+function conceptLabel(c){
+  const map={
+    s_es:"Third-person -s/-es",do_does:"Do / Does",negative:"Negative form",questions:"Question form",be:"Verb BE",
+    frequency:"Adverbs of frequency",time_markers:"Time markers",facts:"Facts / routines",error_correction:"Error correction",
+    be_ing:"am/is/are + V-ing",spelling_ing:"-ing spelling",now_markers:"Now markers",temporary:"Temporary actions",context:"Context choice",
+    rule:"Grammar rule",regular_verbs:"Regular verbs",irregular_verbs:"Irregular verbs",habit_vs_now:"Habit vs action now",
+    routine_vs_past:"Routine vs finished past",now_vs_past:"Action now vs past",form:"Verb form",spelling:"Spelling",
+    recognition:"Recognising compliments",response:"Responding to compliments",dialogue:"Dialogue completion",situation:"Situational language",
+    pragmatics:"Polite response",compliment_form:"Compliment structure",and:"and",but:"but",because:"because",so:"so",or:"or",
+    although:"although",because_so:"Reason vs result",logic:"Logical connector",ch_sound:"Pronunciation: ch",ea_sound:"Pronunciation: ea",
+    oo_sound:"Pronunciation: oo",th_sound:"Pronunciation: th",c_sound:"Pronunciation: c",g_sound:"Pronunciation: g",i_sound:"Pronunciation: i",
+    o_sound:"Pronunciation: o",u_sound:"Pronunciation: u",x_sound:"Pronunciation: x",s_sound:"Pronunciation: s",a_sound:"Pronunciation: a",
+    ou_sound:"Pronunciation: ou",ow_sound:"Pronunciation: ow",ed_rule:"-ed rule",ed_odd:"-ed pronunciation",ed_classification:"-ed classification",
+    word_stress:"Word stress",time_in:"in + time",time_on:"on + time",time_at:"at + time",time:"Time prepositions",place:"Place prepositions",
+    place_basic:"Place prepositions",like:"like",different_from:"different from",as_as:"as…as",not_as_as:"not as…as",transformation:"Sentence transformation",
+    unit1:"Word Form — Unit 1",unit2:"Word Form — Unit 2",unit3:"Word Form — Unit 3",unit4:"Word Form — Unit 4",unit5:"Word Form — Unit 5",unit6:"Word Form — Unit 6",
+    mixed_advanced:"Advanced application",markers:"Time markers",auxiliary:"Auxiliary verbs",past_form:"Past verb form",contrast:"Tense contrast",
+    subject_verb:"Subject–verb agreement",questions_form:"Questions"
+  };
+  return map[c]||String(c||"Review point").replaceAll("_"," ");
+}
+function formatMarkedText(s){
+  const div=document.createElement("div");div.textContent=String(s||"");
+  return div.innerHTML.replace(/\[\[(.*?)\]\]/g,"<u>$1</u>");
+}
+function normalizeText(s){return String(s||"").toLowerCase().replace(/\[\[|\]\]/g,"").replace(/[^a-z0-9]+/g," ").trim()}
+function textSimilarity(a,b){
+  const A=new Set(normalizeText(a).split(" ").filter(x=>x.length>2));
+  const B=new Set(normalizeText(b).split(" ").filter(x=>x.length>2));
+  if(!A.size||!B.size)return 0;
+  let common=0;A.forEach(x=>{if(B.has(x))common++});
+  return common/Math.max(A.size,B.size);
+}
+function isTooSimilarToSeen(text){
+  return seenQuestionTexts.some(old=>normalizeText(old)===normalizeText(text)||textSimilarity(old,text)>=0.82);
+}
 function resetSession(newMode){
   mode=newMode;totalQuestions=newMode==="main"?10:5;currentIndex=0;currentLevel=newMode==="main"?2:Math.max(1,Math.min(3,currentLevel));
-  score=0;correctStreak=0;bestStreak=0;history=[];lastConcept=newMode==="personal"?personalTarget:"general";lastWasWrong=newMode==="personal";
+  score=0;correctStreak=0;wrongStreak=0;bestStreak=0;history=[];lastConcept=newMode==="personal"?personalTarget:"general";lastWasWrong=false;scaffoldNext=false;
+  // Start a fresh anti-repeat history only for a new MAIN session.
+  // Personal Practice keeps the 10 main-practice questions marked as seen.
+  if(newMode==="main"){seenQuestionIds=new Set();seenQuestionTexts=[];}
 }
 function startMainSession(){
   const n=document.getElementById("studentName").value.trim();if(!n){alert("Please enter your name.");return}
-  student=n;resetSession("main");document.getElementById("practiceTitle").textContent="Past Simple";document.getElementById("studentLabel").textContent="Student: "+student;showOnly("practiceView");generateQuestion()
+  selectedTopicId=document.getElementById("topicSelect").value;selectedTopic=TOPICS.find(t=>t.id===selectedTopicId);if(!selectedTopic){alert("Please choose a topic.");return}
+  student=n;resetSession("main");document.getElementById("practiceTitle").textContent=selectedTopic.title;document.getElementById("studentLabel").textContent="Student: "+student;showOnly("practiceView");generateQuestion();
 }
 function startPersonalPractice(){
-  resetSession("personal");document.getElementById("practiceTitle").textContent="Personal Practice — "+conceptLabel(personalTarget);document.getElementById("studentLabel").textContent="Student: "+student;showOnly("practiceView");generateQuestion()
+  resetSession("personal");document.getElementById("practiceTitle").textContent="Personal Practice — "+conceptLabel(personalTarget);document.getElementById("studentLabel").textContent=`${student} · ${selectedTopic.title}`;showOnly("practiceView");generateQuestion();
 }
-function updateLevelUI(){
-  [1,2,3,4].forEach(l=>document.getElementById("lv"+l).classList.toggle("active",l===currentLevel));
+function updateLevelUI(displayLevel=currentLevel){
+  [1,2,3,4].forEach(l=>document.getElementById("lv"+l).classList.toggle("active",l===displayLevel));
   document.getElementById("questionCounter").textContent=`Question ${currentIndex+1}/${totalQuestions}`;
   document.getElementById("sessionBar").style.width=(currentIndex/totalQuestions*100)+"%";
 }
+function bankCandidates(level,targetConcept){
+  let q=QUESTIONS.filter(x=>x.topic===selectedTopicId && !seenQuestionIds.has(x.id));
+  const exactConcept=targetConcept?q.filter(x=>x.concept===targetConcept):[];
+  const byLevel=arr=>arr.filter(x=>x.level===level);
+  let pool=byLevel(exactConcept);
+  if(!pool.length && targetConcept) pool=exactConcept.filter(x=>Math.abs(x.level-level)<=1);
+  if(!pool.length) pool=byLevel(q);
+  if(!pool.length) pool=q.filter(x=>Math.abs(x.level-level)<=1);
+  if(!pool.length) pool=q;
+  return pool;
+}
+function chooseBankQuestion(level,targetConcept){
+  const pool=bankCandidates(level,targetConcept);if(!pool.length)return null;
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+async function askGemini(level,targetConcept){
+  const r=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+    topicId:selectedTopicId,topicTitle:selectedTopic.title,topicGuide:selectedTopic.guide,level,
+    targetConcept:targetConcept||null,previousConcept:lastConcept,previousWrong:lastWasWrong,
+    seenQuestions:seenQuestionTexts.slice(-12)
+  })});
+  if(!r.ok)throw new Error(await r.text());const d=await r.json();if(!d.question)throw new Error("Invalid AI question");
+  if(isTooSimilarToSeen(d.question.q))throw new Error("AI repeated or closely paraphrased a used question");
+  d.question.id=`AI_${Date.now()}_${currentIndex}`;return d.question;
+}
 async function generateQuestion(){
-  answered=false;updateLevelUI();document.getElementById("loadingBox").classList.remove("hidden");document.getElementById("questionBox").classList.add("hidden");document.getElementById("feedbackBox").innerHTML="";document.getElementById("nextBtn").classList.add("hidden");
+  answered=false;
+  const requestedLevel=scaffoldNext?Math.max(1,currentLevel-1):currentLevel;
+  updateLevelUI(requestedLevel);
+  document.getElementById("loadingBox").classList.remove("hidden");document.getElementById("questionBox").classList.add("hidden");document.getElementById("feedbackBox").innerHTML="";document.getElementById("nextBtn").classList.add("hidden");
+  const targetConcept=mode==="personal"?personalTarget:(lastWasWrong?lastConcept:null);
+  const scheduledAI=(mode==="main" && (currentIndex+1)%5===0)||(mode==="personal" && currentIndex===3);
+  let q=null;
   try{
-    const r=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({level:currentLevel,previousConcept:lastConcept,previousWrong:lastWasWrong,targetConcept:mode==="personal"?personalTarget:null})});
-    if(!r.ok)throw new Error(await r.text());const d=await r.json();if(!d.question)throw new Error("Invalid");currentQuestion=d.question;
-  }catch(e){console.error(e);currentQuestion=fallback[currentLevel]}
-  document.getElementById("loadingBox").classList.add("hidden");document.getElementById("questionBox").classList.remove("hidden");renderQuestion()
+    if(!scheduledAI) q=chooseBankQuestion(requestedLevel,targetConcept);
+    if(scheduledAI || !q) q=await askGemini(requestedLevel,targetConcept);
+  }catch(e){console.warn("Gemini unavailable/repeated; using bank fallback",e);q=chooseBankQuestion(requestedLevel,targetConcept)||chooseBankQuestion(requestedLevel,null)}
+  if(!q){alert("No unused question is available for this topic. Please restart the session.");showOnly("studentLoginView");return}
+  currentQuestion=q;seenQuestionIds.add(q.id);seenQuestionTexts.push(q.q);currentQuestion.displayLevel=requestedLevel;
+  document.getElementById("loadingBox").classList.add("hidden");document.getElementById("questionBox").classList.remove("hidden");renderQuestion();
 }
 function renderQuestion(){
-  document.getElementById("questionText").textContent=currentQuestion.q;
-  document.getElementById("optionsBox").innerHTML=currentQuestion.options.map((o,i)=>`<button type="button" class="option" onclick="answerQuestion(${i},this)">${o}</button>`).join("")
+  document.getElementById("questionText").innerHTML=formatMarkedText(currentQuestion.q);
+  document.getElementById("optionsBox").innerHTML=currentQuestion.options.map((o,i)=>`<button type="button" class="option" onclick="answerQuestion(${i},this)">${formatMarkedText(o)}</button>`).join("");
 }
 function answerQuestion(selected,btn){
   if(answered)return;answered=true;const correct=selected===currentQuestion.answer;const buttons=[...document.querySelectorAll(".option")];
   buttons.forEach((b,i)=>{b.disabled=true;if(i===currentQuestion.answer)b.classList.add("correct")});if(!correct)btn.classList.add("wrong");
-  if(correct){score++;correctStreak++;bestStreak=Math.max(bestStreak,correctStreak)}else correctStreak=0;
-  history.push({number:currentIndex+1,level:currentLevel,correct,concept:currentQuestion.concept||"error_correction"});
-  lastConcept=currentQuestion.concept||"error_correction";lastWasWrong=!correct;
-  document.getElementById("feedbackBox").innerHTML=`<div class="feedback ${correct?"ok":"bad"}"><strong>${correct?"✓ Correct":"✗ Not quite"}</strong><br>${currentQuestion.explain}</div>`;
-  currentLevel=correct?Math.min(4,currentLevel+1):Math.max(1,currentLevel-1);
-  document.getElementById("nextBtn").textContent=currentIndex===totalQuestions-1?"See results":"Next question";document.getElementById("nextBtn").classList.remove("hidden")
+  if(correct){
+    score++;correctStreak++;wrongStreak=0;scaffoldNext=false;bestStreak=Math.max(bestStreak,correctStreak);
+    if(correctStreak>=2){currentLevel=Math.min(4,currentLevel+1);correctStreak=0}
+  } else {
+    wrongStreak++;correctStreak=0;
+    if(wrongStreak>=2){
+      currentLevel=Math.max(1,currentLevel-1);wrongStreak=0;scaffoldNext=false;
+    } else {
+      // One error: keep the adaptive level, but give one NEW question one display level easier.
+      scaffoldNext=true;
+    }
+  }
+  history.push({number:currentIndex+1,level:currentQuestion.displayLevel||currentLevel,correct,concept:currentQuestion.concept||"general",id:currentQuestion.id});
+  lastConcept=currentQuestion.concept||"general";lastWasWrong=!correct;
+  document.getElementById("feedbackBox").innerHTML=`<div class="feedback ${correct?"ok":"bad"}"><strong>${correct?"✓ Correct":"✗ Not quite"}</strong><br>${currentQuestion.explain||"Review the rule and try the next question."}${!correct?"<br><span class='small'>The next question will focus on the same point with more support.</span>":""}</div>`;
+  document.getElementById("nextBtn").textContent=currentIndex===totalQuestions-1?"See results":"Next question";document.getElementById("nextBtn").classList.remove("hidden");
 }
 function nextQuestion(){currentIndex++;if(currentIndex>=totalQuestions){mode==="main"?finishMain():finishPersonal()}else generateQuestion()}
 function getWeaknesses(){
   const c={};history.filter(h=>!h.correct).forEach(h=>c[h.concept]=(c[h.concept]||0)+1);
-  return Object.entries(c).sort((a,b)=>b[1]-a[1]).map(([concept,count])=>({concept,count}))
+  return Object.entries(c).sort((a,b)=>b[1]-a[1]).map(([concept,count])=>({concept,count}));
+}
+function theoryForConcept(c){
+  const specific=THEORY_MAP[selectedTopicId]?.[c];
+  if(specific){return {title:specific[0],formula:specific[1],note:specific[2],example:specific[3]}}
+  return selectedTopic.defaultTheory;
 }
 function renderTheory(){
-  const targets=mainWeaknesses.length?mainWeaknesses.map(w=>w.concept):["mixed_advanced"];
-  document.getElementById("theoryBox").innerHTML=targets.map(c=>{const t=THEORY[c]||THEORY.error_correction;return `<div class="theory"><h3>${t.title}</h3><div class="formula">${t.formula}</div><div>${t.note}</div><div class="small muted" style="margin-top:8px"><strong>Example:</strong> ${t.example}</div></div>`}).join("")
+  const targets=mainWeaknesses.length?mainWeaknesses.map(w=>w.concept):["general"];
+  document.getElementById("theoryBox").innerHTML=targets.map(c=>{const t=theoryForConcept(c);return `<div class="theory"><h3>${conceptLabel(c)} — Review</h3><div class="formula">${t.formula}</div><div>${t.note}</div><div class="small muted" style="margin-top:8px"><strong>Example:</strong> ${t.example}</div></div>`}).join("");
 }
 async function saveResult(payload,statusId){
   const el=document.getElementById(statusId);el.textContent="Saving result for your teacher...";
-  try{
-    const r=await fetch("/api/save-result",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
-    if(!r.ok)throw new Error(await r.text());el.textContent="Result saved for your teacher.";
-  }catch(e){console.error(e);el.textContent="Result could not be saved. Please tell your teacher."}
+  try{const r=await fetch("/api/save-result",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});if(!r.ok)throw new Error(await r.text());el.textContent="Result saved for your teacher."}
+  catch(e){console.error(e);el.textContent="Result could not be saved. Please tell your teacher."}
 }
 function finishMain(){
-  mainWeaknesses=getWeaknesses().slice(0,2);personalTarget=mainWeaknesses.length?mainWeaknesses[0].concept:"mixed_advanced";
+  mainWeaknesses=getWeaknesses().slice(0,2);personalTarget=mainWeaknesses.length?mainWeaknesses[0].concept:(QUESTIONS.find(x=>x.topic===selectedTopicId&&x.level===4)?.concept||"general");
   document.getElementById("resultName").textContent=`Great work, ${student}!`;document.getElementById("finalScore").textContent=`${score}/10`;document.getElementById("statCorrect").textContent=score;document.getElementById("statLevel").textContent=currentLevel;document.getElementById("statStreak").textContent=bestStreak;
   document.getElementById("weaknessList").innerHTML=mainWeaknesses.length?mainWeaknesses.map(w=>`<span class="weak">${conceptLabel(w.concept)} · ${w.count} error${w.count>1?"s":""}</span>`).join(""):`<span class="pill">No clear weakness — challenge practice unlocked</span>`;
   renderTheory();showOnly("mainResultView");
-  saveResult({student,topic:"Past Simple",sessionType:"Main Practice",score,total:10,finalLevel:currentLevel,weakAreas:mainWeaknesses.map(w=>conceptLabel(w.concept)),targetConcept:conceptLabel(personalTarget),path:history.map(h=>`Q${h.number}:L${h.level}:${h.concept}:${h.correct?"OK":"WRONG"}`).join(" | ")},"saveStatus")
+  saveResult({student,topic:selectedTopic.title,sessionType:"Main Practice",score,total:10,finalLevel:currentLevel,weakAreas:mainWeaknesses.map(w=>conceptLabel(w.concept)),targetConcept:conceptLabel(personalTarget),path:history.map(h=>`Q${h.number}:L${h.level}:${h.concept}:${h.correct?"OK":"WRONG"}`).join(" | ")},"saveStatus");
 }
 function finishPersonal(){
-  document.getElementById("personalScore").textContent=`${score}/5`;document.getElementById("personalMessage").textContent=score>=4?`Strong improvement in ${conceptLabel(personalTarget)}.`:`Keep reviewing ${conceptLabel(personalTarget)}.`;
-  showOnly("personalResultView");
-  saveResult({student,topic:"Past Simple",sessionType:"Personal Practice",score,total:5,finalLevel:currentLevel,weakAreas:mainWeaknesses.map(w=>conceptLabel(w.concept)),targetConcept:conceptLabel(personalTarget),path:history.map(h=>`Q${h.number}:L${h.level}:${h.concept}:${h.correct?"OK":"WRONG"}`).join(" | ")},"personalSaveStatus")
+  document.getElementById("personalScore").textContent=`${score}/5`;document.getElementById("personalMessage").textContent=score>=4?`Strong improvement in ${conceptLabel(personalTarget)}.`:`Keep reviewing ${conceptLabel(personalTarget)}.`;showOnly("personalResultView");
+  saveResult({student,topic:selectedTopic.title,sessionType:"Personal Practice",score,total:5,finalLevel:currentLevel,weakAreas:mainWeaknesses.map(w=>conceptLabel(w.concept)),targetConcept:conceptLabel(personalTarget),path:history.map(h=>`Q${h.number}:L${h.level}:${h.concept}:${h.correct?"OK":"WRONG"}`).join(" | ")},"personalSaveStatus");
 }
 
 async function teacherLogin(){
-  const pin=document.getElementById("teacherPin").value;const err=document.getElementById("teacherLoginError");
-  err.classList.add("hidden");
-  try{
-    const r=await fetch("/api/teacher-auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({pin})});
-    if(!r.ok)throw new Error("Incorrect PIN");
-    teacherPinMemory=pin;showOnly("teacherView");await loadTeacherData();
-  }catch(e){err.textContent="Incorrect teacher PIN.";err.classList.remove("hidden")}
+  const pin=document.getElementById("teacherPin").value;const err=document.getElementById("teacherLoginError");err.classList.add("hidden");
+  try{const r=await fetch("/api/teacher-auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({pin})});if(!r.ok)throw new Error("Incorrect PIN");teacherPinMemory=pin;showOnly("teacherView");await loadTeacherData()}
+  catch(e){err.textContent="Incorrect teacher PIN.";err.classList.remove("hidden")}
 }
 function teacherLogout(){teacherPinMemory="";teacherDataCache=null;showOnly("homeView")}
 async function loadTeacherData(){
-  try{
-    const r=await fetch("/api/teacher-data",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({pin:teacherPinMemory})});
-    if(!r.ok)throw new Error(await r.text());teacherDataCache=await r.json();renderTeacherData();
-  }catch(e){alert("Could not load teacher data. Check Vercel and Google Apps Script settings.")}
+  try{const r=await fetch("/api/teacher-data",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({pin:teacherPinMemory})});if(!r.ok)throw new Error(await r.text());teacherDataCache=await r.json();renderTeacherData()}
+  catch(e){alert("Could not load teacher data. Check Vercel and Google Apps Script settings.")}
 }
 function renderTeacherData(){
   const s=teacherDataCache.summary||[],r=teacherDataCache.results||[];
   document.getElementById("metricStudents").textContent=s.length;document.getElementById("metricSessions").textContent=r.length;document.getElementById("metricMain").textContent=r.filter(x=>x.sessionType==="Main Practice").length;document.getElementById("metricPersonal").textContent=r.filter(x=>x.sessionType==="Personal Practice").length;
-  document.getElementById("summaryBody").innerHTML=s.length?s.map(x=>`<tr>
-    <td><button class="btn btn-light" onclick='showStudentHistory(${JSON.stringify(x.student)})'>${x.student}</button></td>
-    <td>${x.latestMainScore||"—"}</td><td>${x.finalLevel||"—"}</td><td>${x.weakAreas||"—"}</td><td>${x.latestPersonalPractice||"—"}</td><td>${formatDate(x.lastActive)}</td>
-    <td><button class="btn btn-primary" onclick='generateHomework(${JSON.stringify(x.student)})'>Generate</button></td>
-  </tr>`).join(""):`<tr><td colspan="7" class="muted">No student results yet.</td></tr>`
+  document.getElementById("summaryBody").innerHTML=s.length?s.map(x=>`<tr><td><button class="btn btn-light" onclick='showStudentHistory(${JSON.stringify(x.student)})'>${x.student}</button></td><td>${x.topic||"—"}</td><td>${x.latestMainScore||"—"}</td><td>${x.finalLevel||"—"}</td><td>${x.weakAreas||"—"}</td><td>${x.latestPersonalPractice||"—"}</td><td>${formatDate(x.lastActive)}</td><td><button class="btn btn-primary" onclick='generateHomework(${JSON.stringify(x.student)})'>Generate</button></td></tr>`).join(""):`<tr><td colspan="8" class="muted">No student results yet.</td></tr>`;
 }
 function formatDate(v){if(!v)return"—";const d=new Date(v);return isNaN(d)?v:d.toLocaleString()}
 function showStudentHistory(name){
   const rows=(teacherDataCache.results||[]).filter(x=>String(x.student).toLowerCase()===String(name).toLowerCase()).reverse();
-  document.getElementById("historyTitle").textContent=name+" — Learning History";document.getElementById("historyBody").innerHTML=rows.map(x=>`<tr><td>${formatDate(x.timestamp)}</td><td>${x.sessionType}</td><td>${x.score}/${x.total}</td><td>${x.finalLevel}</td><td>${x.weakAreas||"—"}</td><td>${x.targetConcept||"—"}</td></tr>`).join("");
-  document.getElementById("studentHistoryCard").classList.remove("hidden");document.getElementById("studentHistoryCard").scrollIntoView({behavior:"smooth"})
+  document.getElementById("historyTitle").textContent=name+" — Learning History";document.getElementById("historyBody").innerHTML=rows.map(x=>`<tr><td>${formatDate(x.timestamp)}</td><td>${x.topic||"—"}</td><td>${x.sessionType}</td><td>${x.score}/${x.total}</td><td>${x.finalLevel}</td><td>${x.weakAreas||"—"}</td><td>${x.targetConcept||"—"}</td></tr>`).join("");document.getElementById("studentHistoryCard").classList.remove("hidden");document.getElementById("studentHistoryCard").scrollIntoView({behavior:"smooth"});
 }
 async function generateHomework(name){
-  const summary=(teacherDataCache.summary||[]).find(x=>String(x.student).toLowerCase()===String(name).toLowerCase());
-  if(!summary)return;
-  document.getElementById("homeworkCard").classList.remove("hidden");document.getElementById("homeworkLoading").classList.remove("hidden");document.getElementById("homeworkPrintArea").innerHTML="";
-  document.getElementById("homeworkCard").scrollIntoView({behavior:"smooth"});
-  try{
-    const r=await fetch("/api/homework",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({pin:teacherPinMemory,student:name,topic:"Past Simple",latestMainScore:summary.latestMainScore,finalLevel:summary.finalLevel,weakAreas:summary.weakAreas,latestPersonalPractice:summary.latestPersonalPractice})});
-    if(!r.ok)throw new Error(await r.text());const hw=await r.json();renderHomework(hw.homework);
-  }catch(e){document.getElementById("homeworkPrintArea").innerHTML="<div class='error'>Could not generate homework.</div>"}
-  document.getElementById("homeworkLoading").classList.add("hidden")
+  const summary=(teacherDataCache.summary||[]).find(x=>String(x.student).toLowerCase()===String(name).toLowerCase());if(!summary)return;
+  document.getElementById("homeworkCard").classList.remove("hidden");document.getElementById("homeworkLoading").classList.remove("hidden");document.getElementById("homeworkPrintArea").innerHTML="";document.getElementById("homeworkCard").scrollIntoView({behavior:"smooth"});
+  try{const r=await fetch("/api/homework",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({pin:teacherPinMemory,student:name,topic:summary.topic||"English 7 practice",latestMainScore:summary.latestMainScore,finalLevel:summary.finalLevel,weakAreas:summary.weakAreas,latestPersonalPractice:summary.latestPersonalPractice})});if(!r.ok)throw new Error(await r.text());const hw=await r.json();renderHomework(hw.homework)}
+  catch(e){document.getElementById("homeworkPrintArea").innerHTML="<div class='error'>Could not generate homework.</div>"}document.getElementById("homeworkLoading").classList.add("hidden");
 }
 function renderHomework(hw){
-  currentHomeworkText=`${hw.title}\nStudent: ${hw.student}\nFocus: ${hw.focus}\nDifficulty: ${hw.difficulty}\n\n`+
-    hw.sections.map(s=>`${s.title}\n${s.instructions}\n${s.items.map((x,i)=>`${i+1}. ${x}`).join("\n")}`).join("\n\n")+
-    `\n\nTeacher Answer Key\n${hw.answerKey.map((x,i)=>`${i+1}. ${x}`).join("\n")}`;
-  document.getElementById("homeworkPrintArea").innerHTML=`
-    <h2>${hw.title}</h2><div><strong>Student:</strong> ${hw.student}</div><div><strong>Focus:</strong> ${hw.focus}</div><div><strong>Difficulty:</strong> ${hw.difficulty}</div>
-    ${hw.sections.map(s=>`<div class="hw-section"><h3>${s.title}</h3><div class="muted">${s.instructions}</div>${s.items.map((x,i)=>`<div class="hw-item">${i+1}. ${x}</div>`).join("")}</div>`).join("")}
-    <div class="hw-section"><h3>Teacher Answer Key</h3>${hw.answerKey.map((x,i)=>`<div class="hw-item">${i+1}. ${x}</div>`).join("")}</div>`;
+  currentHomeworkText=`${hw.title}\nStudent: ${hw.student}\nFocus: ${hw.focus}\nDifficulty: ${hw.difficulty}\n\n`+hw.sections.map(s=>`${s.title}\n${s.instructions}\n${s.items.map((x,i)=>`${i+1}. ${x}`).join("\n")}`).join("\n\n")+`\n\nTeacher Answer Key\n${hw.answerKey.map((x,i)=>`${i+1}. ${x}`).join("\n")}`;
+  document.getElementById("homeworkPrintArea").innerHTML=`<h2>${hw.title}</h2><div><strong>Student:</strong> ${hw.student}</div><div><strong>Focus:</strong> ${hw.focus}</div><div><strong>Difficulty:</strong> ${hw.difficulty}</div>${hw.sections.map(s=>`<div class="hw-section"><h3>${s.title}</h3><div class="muted">${s.instructions}</div>${s.items.map((x,i)=>`<div class="hw-item">${i+1}. ${x}</div>`).join("")}</div>`).join("")}<div class="hw-section"><h3>Teacher Answer Key</h3>${hw.answerKey.map((x,i)=>`<div class="hw-item">${i+1}. ${x}</div>`).join("")}</div>`;
 }
-async function copyHomework(){
-  try{await navigator.clipboard.writeText(currentHomeworkText);alert("Homework copied.")}catch(e){alert("Copy failed. You can select and copy the homework manually.")}
-}
+async function copyHomework(){try{await navigator.clipboard.writeText(currentHomeworkText);alert("Homework copied.")}catch(e){alert("Copy failed. You can select and copy the homework manually.")}}
+
+populateTopicSelect();
 </script>
 </body>
 </html>
